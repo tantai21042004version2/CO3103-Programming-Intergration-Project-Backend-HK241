@@ -33,9 +33,12 @@ public class WebSecurityConfiguration {
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
                 .cors(cors -> cors.configurationSource(request -> {
                     var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of("http://localhost:4200",
+                    corsConfig.setAllowedOrigins(List.of(
+                            "http://localhost:4200",
                             "http://localhost:3000",
-                            "https://co3103-programming-integration-project-55ev.onrender.com"));
+                            "https://co3103-programming-integration-project-55ev.onrender.com", // Frontend URL
+                            "https://co3103-programming-integration-project-lmnw.onrender.com" // Backend URL
+                    ));
                     corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                     corsConfig.setAllowedHeaders(List.of("*"));
                     corsConfig.setAllowCredentials(true);
