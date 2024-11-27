@@ -31,6 +31,7 @@ public class SongResponse {
                 .id(song.getId().toString())
                 .name(song.getName())
                 .secureUrl(song.getSecureUrl())
+                .imageUrl(song.getImageUrl())
                 .status(song.getStatus().name())
                 .build();
     }
