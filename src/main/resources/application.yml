@@ -24,9 +24,9 @@ spring:
 
 
 cloudinary:
-  cloud_name: dq76uikpj
-  api_key: 252687583593391
-  api_secret: bBRpdVI_fvwi2-qchZek5_uGfeM
+  cloud_name: tantai21042004
+  api_key: 395294154562735
+  api_secret: B9-0yO18W_3W7CyDcjAQMquRgo4
 
 jwt:
   expiration: 2592000
