@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,34 +29,35 @@ public class WebSecurityConfiguration {
     private String apiPrefix;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity
-                .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class)
-                .cors(cors -> cors.configurationSource(request -> {
-                    var corsConfig = new org.springframework.web.cors.CorsConfiguration();
-                    corsConfig.setAllowedOrigins(List.of(
-                            "http://localhost:4200",
-                            "http://localhost:3000",
-                            "https://co3103-programming-integration-project-55ev.onrender.com", // Frontend URL
-                            "https://co3103-programming-integration-project-lmnw.onrender.com" // Backend URL
-                    ));
-                    corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-                    corsConfig.setAllowedHeaders(List.of("*"));
-                    corsConfig.setAllowCredentials(true);
-                    return corsConfig;
-                }))
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Đảm bảo cấu hình CORS được áp dụng
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(requests -> {
-                    requests
-                            .requestMatchers(
-                                    String.format("%s/users/register", apiPrefix),
-                                    String.format("%s/users/login", apiPrefix),
-                                    String.format("%s/roles", apiPrefix),
-                                    String.format("%s/songs", apiPrefix))
-                            .permitAll()
-                            .anyRequest()
-                            .authenticated();
-                });
-        return httpSecurity.build();
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // Cho phép tất cả request OPTIONS
+                        .requestMatchers(
+                                String.format("%s/users/register", apiPrefix),
+                                String.format("%s/users/login", apiPrefix),
+                                String.format("%s/roles", apiPrefix),
+                                String.format("%s/songs", apiPrefix))
+                        .permitAll()
+                        .anyRequest().authenticated());
+
+        return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(List.of(
+                "http://localhost:4200",
+                "https://co3103-programming-integration-project-55ev.onrender.com"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
