@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: CO3103-Programming Intergration Project-Backend_Internal API Document
+  description: |-
+    Đây là tài liệu mô tả API và các schema của object cho project này 
+
+    Để sử dụng Document, bạn có thể sử dụng plugin hỗ trợ OpenAPI trên các IDE hoặc copy toàn bộ và dán vào [đây](https://editor.swagger.io/).
+
+    Nên start project để có thể sử dụng toàn bộ chức năng
+
+    - Link project: [CO3103-Programming Intergration Project-Backend_Internal](https://github.com/nguyentantai21042004/CO3103-Programming-Intergration-Project-Backend_Internal)
+    - Link database script: [Database Script](https://github.com/nguyentantai21042004/CO3103-Programming-Intergration-Project-Backend_Internal/blob/main/database.sql)
+  version: 1.0.0
+servers:
+  - url: http://localhost:8088/api/v1
+tags:
+  - name: users
+    description: Operations about users
+paths:
+  /users/register:
+    post:
+      tags:
+        - users
+      summary: Đăng ký
+      description: Người dùng đăng ký vào ứng dụng
+      operationId: login
+      requestBody:
+        description: Thông tin đăng nhập
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+
+        required: true
+      responses:
+        "200":
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseObject"
+                  - type: object
+                    properties:
+                      data:
+                        $ref: "#/components/schemas/UserResponse"
+components:
+  schemas:
+    Role:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "LISTENER"
+    User:
+      type: object
+      properties:
+        email:
+          type: string
+          example: abc@gmail.com
+        username:
+          type: string
+          example: abcdef
+        password:
+          type: string
+          example: pasword
+        retype_password:
+          type: string
+          example: pasword
+          format: date-time
+        country:
+          type: string
+          description: Order Status
+          example: approved
+        date_of_birth:
+          type: string
+          format: date-time
+          example: 2020-01-01
+        role_id:
+          type: integer
+          format: int32
+          example: 1
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        email:
+          type: string
+          example: abc@gmail.com
+        password:
+          type: string
+          example: pasword
+        country:
+          type: string
+          description: Order Status
+          example: approved
+        date_of_birth:
+          type: string
+          format: date-time
+          example: 2020-01-01
+        role:
+          $ref: "#/components/schemas/Role"
+    ResponseObject:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "user.login.register_successfully"
+        status:
+          type: string
+          example: "CREATED"
+        data:
+          type: object
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+#         {
+#     "message": "user.login.register_successfully",
+#     "status": "CREATED",
+#     "data": {
+#         "id": 13,
+#         "email": "abc@gmail.com",
+#         "password": "$2a$10$w878q9Qx0/jAKMV8olvRnuWwILecr/YPl/7FYcxbbuPSagRiaCX9C",
+#         "country": "country",
+#         "date_of_birth": 1074643200000,
+#         "role": {
+#             "id": 2,
+#             "name": "LISTENER"
+#         }
+#     }
+# }
