@@ -134,11 +134,20 @@ public class SongService implements ISongService {
 
     @Override
     public Song createSong(SongMetadataDTO metadataSongDTO) throws Exception {
+        String imageUrl = null;
         if (metadataSongDTO.getAlbumId() != null) {
             Optional<Album> existingAlbum = albumRepository.findById(metadataSongDTO.getAlbumId());
             if (existingAlbum.isEmpty()) {
                 throw new DataNotFoundException("Album not found.");
             }
+            if (existingAlbum.get().getCoverUrl() != null) {
+                imageUrl = existingAlbum.get().getCoverUrl();
+            }
+        }
+
+        Optional<User> existingArtist = userRepository.findById(metadataSongDTO.getArtistId());
+        if (existingArtist.isEmpty()) {
+            throw new DataNotFoundException("Artist not found.");
         }
 
         Song newSong = Song.builder()
@@ -154,6 +163,14 @@ public class SongService implements ISongService {
                 .createdAt(dateUtils.getCurrentDate())
                 .updatedAt(dateUtils.getCurrentDate())
                 .build();
+
+        if (imageUrl != null) {
+            newSong.setImageUrl(imageUrl);
+        }
+
+        if (existingArtist.get().getPublicImageId() != null) {
+            newSong.setImageUrl(existingArtist.get().getPublicImageId());
+        }
 
         return songRepository.save(newSong);
     }

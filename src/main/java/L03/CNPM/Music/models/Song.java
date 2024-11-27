@@ -28,6 +28,9 @@ public class Song {
     @Column(name = "duration", nullable = false)
     private Double duration;
 
+    @Column(name = "image_url", length = 255)
+    private String imageUrl;
+
     @Column(name = "secure_url", nullable = false, length = 255)
     private String secureUrl;
 

@@ -20,6 +20,9 @@ public class SongResponse {
     @JsonProperty("secure_url")
     private String secureUrl;
 
+    @JsonProperty("image_url")
+    private String imageUrl;
+
     @JsonProperty("status")
     private String status;
 
