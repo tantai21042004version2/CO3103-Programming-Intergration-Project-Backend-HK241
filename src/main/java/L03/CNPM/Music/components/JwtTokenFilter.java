@@ -1,6 +1,7 @@
 package L03.CNPM.Music.components;
 
 import L03.CNPM.Music.models.User;
+import L03.CNPM.Music.responses.ResponseObject;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,9 +17,13 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+
+import org.springframework.http.HttpStatus;
 
 @Component
 @RequiredArgsConstructor
@@ -42,17 +47,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
             final String authHeader = request.getHeader("Authorization");
             if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                response.sendError(
-                        HttpServletResponse.SC_UNAUTHORIZED,
-                        "authHeader null or not started with Bearer");
+                ResponseObject responseObject = ResponseObject.builder()
+                        .message("authHeader null or not started with Bearer")
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .data(null)
+                        .build();
+
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write(new ObjectMapper().writeValueAsString(responseObject));
                 return;
             }
             final String token = authHeader.substring(7);
-            final String email = jwtTokenUtil.getSubject(token);
+            final String subject = jwtTokenUtil.getSubject(token);
 
-            if (email != null
+            if (subject != null
                     && SecurityContextHolder.getContext().getAuthentication() == null) {
-                User userDetails = (User) userDetailsService.loadUserByUsername(email);
+                User userDetails = (User) userDetailsService.loadUserByUsername(subject);
                 if (jwtTokenUtil.validateToken(token, userDetails)) {
                     UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
@@ -62,10 +73,30 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
                 }
             }
-            filterChain.doFilter(request, response);
+
+            try {
+                filterChain.doFilter(request, response);
+            } catch (IOException | ServletException e) {
+                ResponseObject responseObject = ResponseObject.builder()
+                        .message(e.getMessage())
+                        .status(HttpStatus.UNAUTHORIZED)
+                        .data(null)
+                        .build();
+
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write(new ObjectMapper().writeValueAsString(responseObject));
+            }
         } catch (Exception e) {
+            ResponseObject responseObject = ResponseObject.builder()
+                    .message(e.getMessage())
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .data(null)
+                    .build();
+
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write(e.getMessage());
+            response.setContentType("application/json");
+            response.getWriter().write(new ObjectMapper().writeValueAsString(responseObject));
         }
     }
 
@@ -73,8 +104,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         final List<Pair<String, String>> bypassTokens = Arrays.asList(
                 Pair.of(String.format("%s/users/register", apiPrefix), "POST"),
                 Pair.of(String.format("%s/users/login", apiPrefix), "POST"),
-                Pair.of(String.format("%s/roles", apiPrefix), "GET"),
-                Pair.of(String.format("%s/songs", apiPrefix), "GET"));
+                Pair.of(String.format("%s/songs", apiPrefix), "GET"),
+                Pair.of(String.format("%s/genres", apiPrefix), "GET"),
+                Pair.of(String.format("%s/genres/list", apiPrefix), "GET"),
+                Pair.of(String.format("%s/albums/list", apiPrefix), "GET"),
+                Pair.of(String.format("%s/albums/detail/.*", apiPrefix), "GET"));
 
         String requestPath = request.getServletPath();
         String requestMethod = request.getMethod();

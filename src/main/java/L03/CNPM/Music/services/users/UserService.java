@@ -202,7 +202,7 @@ public class UserService implements IUserService {
         }
 
         User existingUser = optionalUser.get();
-        String oldFileId = existingUser.getPublicImageId();
+        String oldFileId = existingUser.getImageUrl();
 
         Map<String, Object> response;
         try {
@@ -221,7 +221,7 @@ public class UserService implements IUserService {
                     localizationUtils.getLocalizedMessage(MessageKeys.CLOUDINARY_UPLOAD_FAIL));
         }
 
-        existingUser.setPublicImageId((String) response.get("url"));
+        existingUser.setImageUrl((String) response.get("url"));
         userRepository.save(existingUser);
 
         if (oldFileId != null && !oldFileId.isEmpty()) {

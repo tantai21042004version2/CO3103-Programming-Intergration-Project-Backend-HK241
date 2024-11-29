@@ -51,7 +51,7 @@ public class UserDetailResponse {
                 .dateOfBirth(user.getDateOfBirth())
                 .role(user.getRole())
                 .active(user.isActive())
-                .imageUrl(user.getPublicImageId())
+                .imageUrl(user.getImageUrl())
                 .createdAt(user.getCreatedAt().toString())
                 .updatedAt(user.getUpdatedAt().toString())
                 .build();

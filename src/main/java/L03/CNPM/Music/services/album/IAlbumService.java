@@ -1,23 +1,31 @@
 package L03.CNPM.Music.services.album;
 
-import L03.CNPM.Music.DTOS.album.UpdateAlbumDTO;
+import L03.CNPM.Music.DTOS.album.ApproveAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadSongToAlbumDTO;
 import L03.CNPM.Music.models.Album;
-import L03.CNPM.Music.responses.song.SongResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.Map;
 
 public interface IAlbumService {
-    Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId);
+    Map<String, Object> UploadCloudinary(MultipartFile file, Long artistId) throws Exception;
+
+    Album Create(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws Exception;
+
+    Album AddSong(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId, Long artistId) throws Exception;
+
+    Album SubmitAlbum(Long albumId, Long artistId) throws Exception;
 
     Album Detail(Long albumId) throws Exception;
 
-    List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId) throws Exception;
+    Album Approve(Long albumId, ApproveAlbumDTO approveAlbumDTO) throws Exception;
 
-    Page<Album> findAll(String keyword, Pageable pageable);
+    Page<Album> GetByArtistId(Long artistId, Pageable pageable, String keyword, Album.Status status);
 
-    Album updateAlbum(Long albumId, UpdateAlbumDTO updateAlbumDTO) throws Exception;
+    Page<Album> Get(String keyword, Album.Status status, Pageable pageable);
+
+    void Delete(Long albumId) throws Exception;
 }

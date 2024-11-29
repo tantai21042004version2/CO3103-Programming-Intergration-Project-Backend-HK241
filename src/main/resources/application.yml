@@ -7,8 +7,8 @@ api:
 spring:
   datasource:
       url: jdbc:mysql://music-web-hk241-tai21042004.i.aivencloud.com:23837/music_web_db?ssl-mode=REQUIRED
-      username: avnadmin
-      password: AVNS_-HFCs7O9aH9TfDowTLf
+      username: CO3103-HK241
+      password: AVNS_6A1ZeHxJ0TxZiMoL2Dh
       driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
@@ -29,8 +29,8 @@ cloudinary:
   api_secret: B9-0yO18W_3W7CyDcjAQMquRgo4
 
 jwt:
-  expiration: 2592000
-  expiration-refresh-token: 5184000
+  expiration: 7200 # 2 hours
+  expiration-refresh-token: 5184000 # 60 days (2 months)  
   secretKey: TaqlmGv1iEDMRiFp/pHuID1+T84IABfuA0xXh4GhiUI=
 
     

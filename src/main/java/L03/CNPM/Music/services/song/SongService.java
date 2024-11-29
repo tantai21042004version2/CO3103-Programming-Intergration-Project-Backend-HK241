@@ -15,15 +15,19 @@ import com.cloudinary.utils.ObjectUtils;
 
 import L03.CNPM.Music.DTOS.song.SongMetadataDTO;
 import L03.CNPM.Music.exceptions.DataNotFoundException;
-import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Song;
 import L03.CNPM.Music.models.User;
-import L03.CNPM.Music.repositories.AlbumRepository;
+import L03.CNPM.Music.models.Genre;
+import L03.CNPM.Music.models.Role;
 import L03.CNPM.Music.repositories.SongRepository;
+import L03.CNPM.Music.repositories.GenreRepository;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.utils.AudioFileUtils;
-import L03.CNPM.Music.utils.DateUtils;
 import lombok.RequiredArgsConstructor;
+
+import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -32,11 +36,10 @@ public class SongService implements ISongService {
     private final Cloudinary cloudinary;
     private final SongRepository songRepository;
     private final UserRepository userRepository;
-    private final AlbumRepository albumRepository;
-    private final DateUtils dateUtils;
+    private final GenreRepository genreRepository;
 
     @Override
-    public Page<Song> findAll(String keyword, Pageable pageable) {
+    public Page<Song> Get(String keyword, Pageable pageable) {
         if (keyword != null) {
             keyword = keyword.trim();
             if (keyword.isEmpty()) {
@@ -47,7 +50,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Page<Song> findAllPending(String keyword, Pageable pageable) {
+    public Page<Song> GetPending(String keyword, Pageable pageable) {
         if (keyword != null) {
             keyword = keyword.trim();
             if (keyword.isEmpty()) {
@@ -58,12 +61,17 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Page<Song> findAllByArtistId(String artistId, Pageable pageable) {
+    public Page<Song> GetByArtirstId(String artistId, Pageable pageable) {
         return songRepository.findAllByArtistId(Long.parseLong(artistId), pageable);
     }
 
     @Override
-    public Song approveSong(String id) throws Exception {
+    public List<Song> GetByAlbumtId(Long albumId) {
+        return songRepository.findAllByAlbumId(albumId);
+    }
+
+    @Override
+    public Song ApproveSong(String id) throws Exception {
         Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
         if (existingSong.isEmpty()) {
             throw new DataNotFoundException("Song not found.");
@@ -73,15 +81,15 @@ public class SongService implements ISongService {
         song.setStatus(Song.Status.APPROVED);
 
         if (song.getCreatedAt() == null) {
-            song.setCreatedAt(dateUtils.getCurrentDate());
+            song.setCreatedAt(LocalDateTime.now());
         }
-        song.setUpdatedAt(dateUtils.getCurrentDate());
+        song.setUpdatedAt(LocalDateTime.now());
 
         return songRepository.save(song);
     }
 
     @Override
-    public Song rejectSong(String id) throws Exception {
+    public Song RejectSong(String id) throws Exception {
         Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
         if (existingSong.isEmpty()) {
             throw new DataNotFoundException("Song not found.");
@@ -90,15 +98,15 @@ public class SongService implements ISongService {
 
         song.setStatus(Song.Status.REJECTED);
         if (song.getCreatedAt() == null) {
-            song.setCreatedAt(dateUtils.getCurrentDate());
+            song.setCreatedAt(LocalDateTime.now());
         }
-        song.setUpdatedAt(dateUtils.getCurrentDate());
+        song.setUpdatedAt(LocalDateTime.now());
 
         return songRepository.save(song);
     }
 
     @Override
-    public Map<String, Object> uploadSong(MultipartFile file) throws Exception {
+    public Map<String, Object> UploadSong(MultipartFile file) throws Exception {
         Map<String, Object> response = null;
 
         if (file == null || file.isEmpty()) {
@@ -133,43 +141,41 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song createSong(SongMetadataDTO metadataSongDTO) throws Exception {
-        String imageUrl = null;
-        if (metadataSongDTO.getAlbumId() != null) {
-            Optional<Album> existingAlbum = albumRepository.findById(metadataSongDTO.getAlbumId());
-            if (existingAlbum.isEmpty()) {
-                throw new DataNotFoundException("Album not found.");
-            }
-            if (existingAlbum.get().getCoverUrl() != null) {
-                imageUrl = existingAlbum.get().getCoverUrl();
-            }
-        }
-
+    public Song Create(SongMetadataDTO metadataSongDTO) throws Exception {
         Optional<User> existingArtist = userRepository.findById(metadataSongDTO.getArtistId());
         if (existingArtist.isEmpty()) {
             throw new DataNotFoundException("Artist not found.");
         }
 
+        if (!existingArtist.get().getRole().getName().equals(Role.ARTIST)) {
+            throw new DataNotFoundException("You are not an artist.");
+        }
+
+        if (existingArtist.get().getImageUrl() == null) {
+            throw new DataNotFoundException("You have not set your profile image yet, please set it first.");
+        }
+
+        Optional<Genre> existingGenre = genreRepository.findById(metadataSongDTO.getGenreId());
+        if (existingGenre.isEmpty()) {
+            throw new DataNotFoundException("Genre not found.");
+        }
+
         Song newSong = Song.builder()
                 .name(metadataSongDTO.getName())
                 .description(metadataSongDTO.getDescription())
-                .releaseDate(metadataSongDTO.getReleaseDate())
+                .releaseDate(LocalDate.parse(metadataSongDTO.getReleaseDate()))
                 .artistId(metadataSongDTO.getArtistId())
-                .albumId(metadataSongDTO.getAlbumId())
+                .genreId(metadataSongDTO.getGenreId())
                 .duration(metadataSongDTO.getDuration())
                 .publicId(metadataSongDTO.getPublicId())
                 .secureUrl(metadataSongDTO.getSecureUrl())
                 .status(Song.Status.DRAFT)
-                .createdAt(dateUtils.getCurrentDate())
-                .updatedAt(dateUtils.getCurrentDate())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
 
-        if (imageUrl != null) {
-            newSong.setImageUrl(imageUrl);
-        }
-
-        if (existingArtist.get().getPublicImageId() != null) {
-            newSong.setImageUrl(existingArtist.get().getPublicImageId());
+        if (existingArtist.get().getImageUrl() != null) {
+            newSong.setImageUrl(existingArtist.get().getImageUrl());
         }
 
         return songRepository.save(newSong);
@@ -177,7 +183,7 @@ public class SongService implements ISongService {
 
     @Override
     @Transactional
-    public void deleteSong(String publicId) throws Exception {
+    public void Delete(String publicId) throws Exception {
         if (publicId == null || publicId.isEmpty()) {
             throw new IllegalArgumentException("Public ID is invalid.");
         }
@@ -193,7 +199,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song updateSong(String id, String userId) throws Exception {
+    public Song Update(String id, String userId) throws Exception {
         User user = null;
         Optional<User> existingArtist = userRepository.findById(Long.parseLong(userId));
         if (existingArtist.isEmpty()) {
@@ -214,9 +220,9 @@ public class SongService implements ISongService {
         song.setStatus(Song.Status.PENDING);
 
         if (song.getCreatedAt() == null) {
-            song.setCreatedAt(dateUtils.getCurrentDate());
+            song.setCreatedAt(LocalDateTime.now());
         }
-        song.setUpdatedAt(dateUtils.getCurrentDate());
+        song.setUpdatedAt(LocalDateTime.now());
 
         return songRepository.save(song);
     }

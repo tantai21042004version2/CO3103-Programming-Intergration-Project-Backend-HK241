@@ -1,11 +1,11 @@
-package L03.CNPM.Music.responses.album;
+package L03.CNPM.Music.responses.genre;
+
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
@@ -13,9 +13,9 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @Data
 @Builder
 @NoArgsConstructor
-public class AlbumListResponse {
-    @JsonProperty("albums")
-    private List<AlbumResponse> albumResponseList;
+public class GenreListResponse {
+    @JsonProperty("genres")
+    private List<GenreResponse> genres;
 
     @JsonProperty("total_pages")
     private int totalPages;

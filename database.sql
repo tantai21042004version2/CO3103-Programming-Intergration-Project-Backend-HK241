@@ -1,33 +1,38 @@
--- Bảng User
+---------- USERS TABLE ----------
 CREATE TABLE users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,           -- ID tự động tăng
-    email VARCHAR(100) UNIQUE NOT NULL,             -- Email duy nhất, dùng để đăng nhập
-    username VARCHAR(50) UNIQUE NOT NULL,           -- Tên người dùng duy nhất
-    password VARCHAR(255) NOT NULL,                 -- Mật khẩu đã mã hóa
-    profile_image VARCHAR(255),                     -- Ảnh đại diện (tùy chọn)
-    country VARCHAR(50),                            -- Quốc gia (tùy chọn)
-    date_of_birth DATE,                             -- Ngày sinh (tùy chọn)
-    is_active BOOLEAN DEFAULT TRUE,                 -- Trạng thái tài khoản (true = kích hoạt)
-    role_id BIGINT,                                 -- Liên kết đến bảng roles
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Thời gian tạo tài khoản (mặc định là hiện tại)
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP -- Thời gian cập nhật
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,            
+    email VARCHAR(100) UNIQUE NOT NULL,             
+    username VARCHAR(50) UNIQUE NOT NULL,           
+    password VARCHAR(255) NOT NULL,                 
+    profile_image VARCHAR(255),                     
+    country VARCHAR(50),                            
+    date_of_birth DATE,                             
+    is_active BOOLEAN DEFAULT TRUE,                 
+    role_id BIGINT,                                 
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
 );
 
--- Thêm khóa ngoại cho role_id
+
 ALTER TABLE users
 ADD CONSTRAINT fk_role_id
 FOREIGN KEY (role_id) REFERENCES roles(id)
-ON DELETE SET NULL; -- Nếu role bị xóa, role_id sẽ bị đặt về NULL
+ON DELETE SET NULL;
 
 ALTER TABLE users
 ADD COLUMN public_image_id VARCHAR(255);
 
--- Bảng Role
+ALTER TABLE users
+ADD COLUMN artist_name VARCHAR(255) DEFAULT NULL,
+ADD COLUMN biography TEXT DEFAULT NULL;
+
+---------- ROLES TABLE ----------
 CREATE TABLE roles (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,      -- ID của vai trò
-    name VARCHAR(50) NOT NULL UNIQUE           -- Tên của vai trò (ví dụ: ROLE_ADMIN, ROLE_USER)
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,      
+    name VARCHAR(50) NOT NULL UNIQUE           
 );
 
+---------- TOKENS TABLE ----------
 CREATE TABLE tokens (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     token VARCHAR(255),
@@ -60,13 +65,15 @@ CREATE TABLE album (
     FOREIGN KEY (artist_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
-CREATE TABLE album_genre (
-    album_id BIGINT NOT NULL,
-    genre_id BIGINT NOT NULL,
-    PRIMARY KEY (album_id, genre_id),
-    FOREIGN KEY (album_id) REFERENCES album(id) ON DELETE CASCADE,
-    FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
-);
+ALTER TABLE album
+ADD COLUMN genre_id BIGINT NOT NULL,
+ADD CONSTRAINT fk_album_genre
+FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE;
+
+ALTER TABLE albums
+MODIFY COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+MODIFY COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+MODIFY COLUMN release_date DATE;
 
 CREATE TABLE playlist (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -121,6 +128,11 @@ CREATE TABLE song (
     FOREIGN KEY (album_id) REFERENCES album(id) ON DELETE SET NULL
 );
 
+ALTER TABLE songs
+MODIFY COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+MODIFY COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+MODIFY COLUMN release_date DATE;
+ADD COLUMN deleted_at DATETIME AFTER updated_at;
 
 -- CREATE TABLE report (
 --     report_id BIGINT AUTO_INCREMENT PRIMARY KEY,

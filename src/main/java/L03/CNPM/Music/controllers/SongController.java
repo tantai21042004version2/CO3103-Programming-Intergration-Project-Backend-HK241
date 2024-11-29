@@ -75,7 +75,7 @@ public class SongController {
                                 page - 1, limit,
                                 Sort.by("id").ascending());
 
-                Page<SongResponse> songPage = songService.findAll(keyword, pageRequest)
+                Page<SongResponse> songPage = songService.Get(keyword, pageRequest)
                                 .map(SongResponse::fromSong);
 
                 int totalPages = songPage.getTotalPages();
@@ -139,7 +139,7 @@ public class SongController {
                                 page - 1, limit,
                                 Sort.by("id").ascending());
 
-                Page<SongResponse> songPage = songService.findAllByArtistId(userId, pageRequest)
+                Page<SongResponse> songPage = songService.GetByArtirstId(userId, pageRequest)
                                 .map(SongResponse::fromSong);
 
                 int totalPages = songPage.getTotalPages();
@@ -198,7 +198,7 @@ public class SongController {
                                 page - 1, limit,
                                 Sort.by("id").ascending());
 
-                Page<SongResponse> songPage = songService.findAllPending(keyword, pageRequest)
+                Page<SongResponse> songPage = songService.GetPending(keyword, pageRequest)
                                 .map(SongResponse::fromSong);
 
                 int totalPages = songPage.getTotalPages();
@@ -243,7 +243,7 @@ public class SongController {
         public ResponseEntity<ResponseObject> UploadSongToCloudinary(
                         @RequestPart MultipartFile file) throws Exception {
                 try {
-                        Map<String, Object> response = songService.uploadSong(file);
+                        Map<String, Object> response = songService.UploadSong(file);
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Upload song successfully")
@@ -314,7 +314,7 @@ public class SongController {
                 }
 
                 try {
-                        Song newSong = songService.createSong(metadataSongDTO);
+                        Song newSong = songService.Create(metadataSongDTO);
 
                         User artist = userService.Detail(newSong.getArtistId());
 
@@ -365,7 +365,7 @@ public class SongController {
                 }
 
                 try {
-                        Song song = songService.updateSong(id, userId);
+                        Song song = songService.Update(id, userId);
 
                         User artist = userService.Detail(song.getArtistId());
 
@@ -404,7 +404,7 @@ public class SongController {
         @PreAuthorize("hasRole('ROLE_ADMIN')")
         public ResponseEntity<ResponseObject> ApproveSong(@PathVariable String id) {
                 try {
-                        Song song = songService.approveSong(id);
+                        Song song = songService.ApproveSong(id);
 
                         User artist = userService.Detail(song.getArtistId());
 
@@ -443,7 +443,7 @@ public class SongController {
         @PreAuthorize("hasRole('ROLE_ADMIN')")
         public ResponseEntity<ResponseObject> RejectSong(@PathVariable String id) {
                 try {
-                        Song song = songService.rejectSong(id);
+                        Song song = songService.RejectSong(id);
 
                         User artist = userService.Detail(song.getArtistId());
 
