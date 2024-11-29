@@ -3,13 +3,15 @@ package L03.CNPM.Music.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "playlist")
+@Table(name = "playlists")
 public class Playlist {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,20 +35,15 @@ public class Playlist {
     @Column(name = "is_public", nullable = false)
     private Boolean isPublic;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, columnDefinition = "ENUM('DRAFT','PENDING','APPROVED','REJECTED')")
-    private Status status;
+    @Column(name = "status", nullable = false)
+    private String status;
 
     @Column(name = "created_at")
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
-    public enum Status {
-        DRAFT,
-        PENDING,
-        APPROVED,
-        REJECTED
-    }
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 }

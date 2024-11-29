@@ -93,14 +93,15 @@ ALTER TABLE playlist
 ADD COLUMN genre_id BIGINT AFTER description,
 ADD CONSTRAINT fk_genre_id
 FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE SET NULL;
-
+ALTER TABLE playlists MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'DRAFT';
 
 CREATE TABLE song_playlist (
-    playlist_id BIGINT NOT NULL,
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
     song_id BIGINT NOT NULL,
-    PRIMARY KEY (playlist_id, song_id),
-    FOREIGN KEY (playlist_id) REFERENCES playlist(id) ON DELETE CASCADE,
-    FOREIGN KEY (song_id) REFERENCES song(id) ON DELETE CASCADE
+    playlist_id BIGINT NOT NULL,
+    UNIQUE (song_id, playlist_id),
+    FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
+    FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
 );
 
 

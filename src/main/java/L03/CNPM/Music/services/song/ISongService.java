@@ -19,6 +19,8 @@ public interface ISongService {
 
     List<Song> GetByAlbumtId(Long albumId);
 
+    List<Song> GetByPlaylistId(Long playlistId);
+
     Song ApproveSong(String id) throws Exception;
 
     Song RejectSong(String id) throws Exception;

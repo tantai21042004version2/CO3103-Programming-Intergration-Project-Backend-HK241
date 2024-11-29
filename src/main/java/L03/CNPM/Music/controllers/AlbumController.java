@@ -364,8 +364,7 @@ public class AlbumController {
         @DeleteMapping("/{album_id}")
         @PreAuthorize("hasRole('ROLE_ARTIST')")
         public ResponseEntity<ResponseObject> Delete(
-                        @PathVariable("album_id") Long albumId,
-                        @RequestHeader(HttpHeaders.AUTHORIZATION) String authorizationHeader) {
+                        @PathVariable("album_id") Long albumId) {
                 try {
                         albumService.Delete(albumId);
 
