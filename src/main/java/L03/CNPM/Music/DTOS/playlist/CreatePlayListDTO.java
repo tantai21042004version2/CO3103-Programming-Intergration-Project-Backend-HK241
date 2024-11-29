@@ -16,15 +16,15 @@ public class CreatePlayListDTO {
     @NotBlank(message = "Name cannot be blank")
     private String name;
 
-    @JsonProperty("cover_url")
-    private String coverUrl;
-
     @JsonProperty("description")
     private String description;
 
-    @JsonProperty("is_public")
-    private Boolean isPublic;
-
     @JsonProperty("genre_id")
     private Long genreId;
+
+    @JsonProperty("cover_url")
+    private String coverUrl;
+
+    @JsonProperty("is_public")
+    private Boolean isPublic;
 }

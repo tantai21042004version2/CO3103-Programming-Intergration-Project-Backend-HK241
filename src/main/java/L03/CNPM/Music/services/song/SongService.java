@@ -16,11 +16,13 @@ import com.cloudinary.utils.ObjectUtils;
 import L03.CNPM.Music.DTOS.song.SongMetadataDTO;
 import L03.CNPM.Music.exceptions.DataNotFoundException;
 import L03.CNPM.Music.models.Song;
+import L03.CNPM.Music.models.SongPlaylist;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.models.Genre;
 import L03.CNPM.Music.models.Role;
 import L03.CNPM.Music.repositories.SongRepository;
 import L03.CNPM.Music.repositories.GenreRepository;
+import L03.CNPM.Music.repositories.SongPlaylistRepository;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.utils.AudioFileUtils;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +30,7 @@ import lombok.RequiredArgsConstructor;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
 
 @Service
 @RequiredArgsConstructor
@@ -37,6 +40,7 @@ public class SongService implements ISongService {
     private final SongRepository songRepository;
     private final UserRepository userRepository;
     private final GenreRepository genreRepository;
+    private final SongPlaylistRepository songPlaylistRepository;
 
     @Override
     public Page<Song> Get(String keyword, Pageable pageable) {
@@ -68,6 +72,22 @@ public class SongService implements ISongService {
     @Override
     public List<Song> GetByAlbumtId(Long albumId) {
         return songRepository.findAllByAlbumId(albumId);
+    }
+
+    @Override
+    public List<Song> GetByPlaylistId(Long playlistId) {
+        List<SongPlaylist> songPlaylists = songPlaylistRepository.findByPlaylistId(playlistId);
+
+        List<Song> songs = new ArrayList<>();
+
+        for (SongPlaylist songPlaylist : songPlaylists) {
+            Optional<Song> song = songRepository.findById(songPlaylist.getSongId());
+            if (song.isPresent()) {
+                songs.add(song.get());
+            }
+        }
+
+        return songs;
     }
 
     @Override

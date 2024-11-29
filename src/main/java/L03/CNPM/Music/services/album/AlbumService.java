@@ -52,6 +52,10 @@ public class AlbumService implements IAlbumService {
             throw new DataNotFoundException("User with ID %s is not an artist".formatted(artistId));
         }
 
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File does not exist or is empty.");
+        }
+
         Map<String, Object> response;
         Map<String, Object> uploadParams = ObjectUtils.asMap(
                 "resource_type", "image",
