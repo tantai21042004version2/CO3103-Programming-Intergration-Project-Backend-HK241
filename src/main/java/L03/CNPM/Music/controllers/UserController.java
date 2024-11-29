@@ -5,14 +5,12 @@ import L03.CNPM.Music.DTOS.user.ResetPasswordDTO;
 import L03.CNPM.Music.DTOS.user.UserLoginDTO;
 import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.components.LocalizationUtils;
-import L03.CNPM.Music.models.Token;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.responses.ResponseObject;
 import L03.CNPM.Music.responses.users.LoginResponse;
 import L03.CNPM.Music.responses.users.UserDetailResponse;
 import L03.CNPM.Music.responses.users.UserListResponse;
 import L03.CNPM.Music.responses.users.UserResponse;
-import L03.CNPM.Music.services.token.ITokenService;
 import L03.CNPM.Music.services.users.IUserService;
 import L03.CNPM.Music.utils.MessageKeys;
 import L03.CNPM.Music.utils.ValidationUtils;
@@ -40,7 +38,6 @@ import java.util.List;
 public class UserController {
         private final LocalizationUtils localizationUtils;
         private final IUserService userService;
-        private final ITokenService tokenService;
         private final ValidationUtils validationUtils;
         private final JwtTokenUtils jwtTokenUtils;
 
@@ -187,13 +184,9 @@ public class UserController {
                         HttpServletRequest request) throws Exception {
                 try {
                         String token = userService.Login(userLoginDTO);
-                        String userAgent = request.getHeader("User-Agent");
-
-                        User userDetail = userService.GetUserDetailByToken(token);
-                        Token jwtToken = tokenService.addToken(userDetail, token, isMobileDevice(userAgent));
 
                         LoginResponse loginResponse = LoginResponse.builder()
-                                        .token(jwtToken.getToken())
+                                        .token(token)
                                         .tokenType("Bearer")
                                         .build();
 
@@ -223,8 +216,8 @@ public class UserController {
          * }
          * }
          */
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST') or hasRole('ROLE_ADMIN')")
         @GetMapping("/details")
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST') or hasRole('ROLE_ADMIN')")
         public ResponseEntity<ResponseObject> Detail(
                         @RequestHeader("Authorization") String authorizationHeader) throws Exception {
                 try {
@@ -259,7 +252,7 @@ public class UserController {
          * }
          * }
          */
-        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST')")
+        @PreAuthorize("hasRole('ROLE_LISTENER') or hasRole('ROLE_ARTIST') or hasRole('ROLE_ADMIN')")
         @PostMapping(value = "/upload-profile-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
         public ResponseEntity<ResponseObject> UploadProfileImageUser(
                         @RequestParam("file") MultipartFile file,
@@ -405,10 +398,6 @@ public class UserController {
                                 .status(HttpStatus.OK)
                                 .data(UserResponse.fromUser(updatedUser))
                                 .build());
-        }
-
-        private boolean isMobileDevice(String userAgent) {
-                return userAgent.toLowerCase().contains("mobile");
         }
 
         public static boolean isImageFile(MultipartFile file) {

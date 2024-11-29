@@ -29,8 +29,8 @@ public class User implements UserDetails {
     @Column(name = "password", nullable = false)
     private String password;
 
-    @Column(name = "public_image_id")
-    private String publicImageId;
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @Column(name = "country")
     private String country;
@@ -44,6 +44,12 @@ public class User implements UserDetails {
     @ManyToOne
     @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "fk_role_id"))
     private Role role;
+
+    @Column(name = "artist_name")
+    private String artistName;
+
+    @Column(name = "biography")
+    private String biography;
 
     @Column(name = "created_at", updatable = false)
     private String createdAt;
@@ -66,12 +72,7 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        if (username != null && !username.isEmpty())
-            return username;
-        else if (email != null && !email.isEmpty())
-            return email;
-
-        return "";
+        return username;
     }
 
     public boolean isActive() {

@@ -1,10 +1,9 @@
 package L03.CNPM.Music.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -12,41 +11,42 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "album")
+@Table(name = "albums")
 public class Album {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 255)
     private String name;
 
     @Column(name = "artist_id", nullable = false)
     private Long artistId;
 
     @Column(name = "release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
 
     @Column(name = "cover_url")
     private String coverUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Status status = Status.DRAFT;
+    private Status status;
 
     @Column(name = "created_at")
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String description;
 
-    @ManyToMany
-    @JsonIgnore
-    @JoinTable(name = "album_genre", joinColumns = @JoinColumn(name = "album_id"), inverseJoinColumns = @JoinColumn(name = "genre_id"))
-    private List<Genre> genres;
+    @Column(name = "genre_id", nullable = false)
+    private Long genreId;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public enum Status {
         DRAFT,

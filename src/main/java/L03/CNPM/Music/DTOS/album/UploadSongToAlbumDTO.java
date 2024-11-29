@@ -1,6 +1,5 @@
 package L03.CNPM.Music.DTOS.album;
 
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 
@@ -13,7 +12,9 @@ import java.util.List;
 @Getter
 @Setter
 public class UploadSongToAlbumDTO {
-    @JsonProperty("song_ids")
-    private List<Long> songIds;
+    @JsonProperty("add_song_ids")
+    private List<Long> addSongIds;
 
+    @JsonProperty("remove_song_ids")
+    private List<Long> removeSongIds;
 }

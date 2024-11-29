@@ -1,28 +1,34 @@
 package L03.CNPM.Music.services.album;
 
-import L03.CNPM.Music.DTOS.album.UpdateAlbumDTO;
+import L03.CNPM.Music.DTOS.album.ApproveAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadAlbumDTO;
 import L03.CNPM.Music.DTOS.album.UploadSongToAlbumDTO;
+import L03.CNPM.Music.components.LocalizationUtils;
 import L03.CNPM.Music.exceptions.DataNotFoundException;
+import L03.CNPM.Music.exceptions.UploadCloudinaryException;
 import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.Genre;
+import L03.CNPM.Music.models.Role;
 import L03.CNPM.Music.models.Song;
+import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.AlbumRepository;
 import L03.CNPM.Music.repositories.GenreRepository;
 import L03.CNPM.Music.repositories.SongRepository;
-import L03.CNPM.Music.responses.song.SongResponse;
+import L03.CNPM.Music.utils.MessageKeys;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import L03.CNPM.Music.repositories.UserRepository;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
+
+import com.cloudinary.Cloudinary;
+import org.springframework.web.multipart.MultipartFile;
+import com.cloudinary.utils.ObjectUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -30,112 +36,203 @@ public class AlbumService implements IAlbumService {
     private final AlbumRepository albumRepository;
     private final SongRepository songRepository;
     private final GenreRepository genreRepository;
+    private final UserRepository userRepository;
+    private final LocalizationUtils localizationUtils;
+    private final Cloudinary cloudinary;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Map<String, Object> UploadCloudinary(MultipartFile file, Long artistId) throws Exception {
+        Optional<User> existedArtist = userRepository.findById(artistId);
+        if (existedArtist.isEmpty()) {
+            throw new DataNotFoundException("Artist with ID %s not found".formatted(artistId));
+        }
+
+        if (!existedArtist.get().getRole().getName().equals(Role.ARTIST)) {
+            throw new DataNotFoundException("User with ID %s is not an artist".formatted(artistId));
+        }
+
+        Map<String, Object> response;
+        Map<String, Object> uploadParams = ObjectUtils.asMap(
+                "resource_type", "image",
+                "folder", "albums");
+
+        try {
+            response = cloudinary.uploader().upload(file.getBytes(), uploadParams);
+        } catch (Exception e) {
+            throw new UploadCloudinaryException(
+                    localizationUtils.getLocalizedMessage(MessageKeys.CLOUDINARY_UPLOAD_FAIL) + ": " + e.getMessage());
+        }
+
+        if (response == null || response.isEmpty()) {
+            throw new UploadCloudinaryException(
+                    localizationUtils.getLocalizedMessage(MessageKeys.CLOUDINARY_UPLOAD_FAIL));
+        }
+
+        return response;
+    }
 
     @Override
-    public Album uploadAlbum(UploadAlbumDTO uploadAlbumDTO, Long artistId) {
-        List<Long> genre_id = (uploadAlbumDTO.getGenre_Id()).stream().map(Long::valueOf).toList();
-        List<Genre> genreList = genreRepository.findGenresByIdIn(genre_id);
+    public Album Create(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws Exception {
+        Optional<Genre> existedGenre = genreRepository.findById(uploadAlbumDTO.getGenreId());
+        if (existedGenre.isEmpty()) {
+            throw new DataNotFoundException("Genre with ID %s not found".formatted(uploadAlbumDTO.getGenreId()));
+        }
+
+        Optional<User> existedArtist = userRepository.findById(artistId);
+        if (existedArtist.isEmpty()) {
+            throw new DataNotFoundException("Artist with ID %s not found".formatted(artistId));
+        }
+
         Album album = Album.builder()
                 .name(uploadAlbumDTO.getName())
+                .artistId(artistId)
+                .releaseDate(LocalDate.parse(uploadAlbumDTO.getReleaseDate()))
+                .coverUrl(uploadAlbumDTO.getCoverUrl())
                 .description(uploadAlbumDTO.getDescription())
                 .status(Album.Status.DRAFT)
-                .artistId(artistId)
-                .coverUrl(uploadAlbumDTO.getCoverImageUrl())
-                .releaseDate(uploadAlbumDTO.getReleaseDate())
-                .createdAt(LocalDate.now().format(DateTimeFormatter.ISO_DATE))
-                .updatedAt(LocalDate.now().format(DateTimeFormatter.ISO_DATE))
-                .genres(genreList)
+                .genreId(uploadAlbumDTO.getGenreId())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .build();
-        albumRepository.save(album);
-        return album;
+
+        return albumRepository.save(album);
     }
 
     @Override
-    public List<SongResponse> uploadSongToAlbum(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId)
-            throws DataNotFoundException {
-
-        if (!albumRepository.existsById(albumId))
+    public Album AddSong(UploadSongToAlbumDTO uploadSongToAlbumDTO, Long albumId, Long artistId)
+            throws Exception {
+        Optional<Album> exitedAlbum = albumRepository.findById(albumId);
+        if (exitedAlbum.isEmpty())
             throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
+        Album album = exitedAlbum.get();
 
-        List<Song> songs = new ArrayList<>();
-        for (Long songId : uploadSongToAlbumDTO.getSongIds()) {
+        Optional<User> existingArtist = userRepository.findById(artistId);
+        if (existingArtist.isEmpty())
+            throw new DataNotFoundException("Artist with ID %s not found".formatted(artistId));
+        User artist = existingArtist.get();
+
+        if (!album.getArtistId().equals(artistId))
+            throw new DataNotFoundException("Artist with ID %s is not the owner of the album".formatted(artistId));
+
+        for (Long songId : uploadSongToAlbumDTO.getAddSongIds()) {
             Optional<Song> existedSong = songRepository.findById(songId);
-            if (existedSong.isEmpty()) {
+            if (existedSong.isEmpty())
                 throw new DataNotFoundException("Song with ID %s not found".formatted(songId));
-            }
             Song song = existedSong.get();
-            songs.add(song);
+            if (song.getAlbumId() != null)
+                throw new DataNotFoundException("Song with ID %s already in another album".formatted(songId));
+
+            if (!song.getArtistId().equals(artistId))
+                throw new DataNotFoundException(
+                        "Song with ID %s is not owned by artist with ID %s".formatted(songId, artistId));
+
             song.setAlbumId(albumId);
+            if (album.getCoverUrl() != null)
+                song.setImageUrl(album.getCoverUrl());
+            song.setUpdatedAt(LocalDateTime.now());
             songRepository.save(song);
         }
-        return songs.stream().map(SongResponse::fromSong).toList();
+
+        for (Long songId : uploadSongToAlbumDTO.getRemoveSongIds()) {
+            Optional<Song> existedSong = songRepository.findById(songId);
+            if (existedSong.isEmpty())
+                throw new DataNotFoundException("Song with ID %s not found".formatted(songId));
+            Song song = existedSong.get();
+            if (!song.getAlbumId().equals(albumId))
+                throw new DataNotFoundException(
+                        "Song with ID %s is not in album with ID %s".formatted(songId, albumId));
+
+            song.setAlbumId(null);
+            if (artist.getImageUrl() != null)
+                song.setImageUrl(artist.getImageUrl());
+            song.setUpdatedAt(LocalDateTime.now());
+            songRepository.save(song);
+        }
+
+        if (album.getCreatedAt() == null)
+            album.setCreatedAt(LocalDateTime.now());
+        album.setUpdatedAt(LocalDateTime.now());
+
+        return albumRepository.save(album);
     }
 
     @Override
-    public Page<Album> findAll(String keyword, Pageable pageable) {
+    public Album SubmitAlbum(Long albumId, Long artistId) throws Exception {
+        Optional<Album> exitedAlbum = albumRepository.findById(albumId);
+        if (exitedAlbum.isEmpty())
+            throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
+        Album album = exitedAlbum.get();
+
+        if (!album.getArtistId().equals(artistId))
+            throw new DataNotFoundException(
+                    "Artist with ID %s is not the owner of the album".formatted(artistId));
+
+        album.setStatus(Album.Status.PENDING);
+        album.setUpdatedAt(LocalDateTime.now());
+
+        return albumRepository.save(album);
+    }
+
+    @Override
+    public Album Detail(Long albumId) throws Exception {
+        Optional<Album> exitedAlbum = albumRepository.findById(albumId);
+        if (exitedAlbum.isEmpty())
+            throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
+        return exitedAlbum.get();
+    }
+
+    @Override
+    public Album Approve(Long albumId, ApproveAlbumDTO approveAlbumDTO) throws Exception {
+        Optional<Album> exitedAlbum = albumRepository.findById(albumId);
+        if (exitedAlbum.isEmpty())
+            throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
+        Album album = exitedAlbum.get();
+
+        if (approveAlbumDTO.getIsApproved()) {
+            album.setStatus(Album.Status.APPROVED);
+        } else {
+            album.setStatus(Album.Status.REJECTED);
+        }
+
+        album.setDescription(approveAlbumDTO.getDescription());
+        album.setUpdatedAt(LocalDateTime.now());
+
+        return albumRepository.save(album);
+    }
+
+    @Override
+    public Page<Album> GetByArtistId(Long artistId, Pageable pageable, String keyword, Album.Status status) {
         if (keyword != null) {
             keyword = keyword.trim();
             if (keyword.isEmpty()) {
                 keyword = null;
             }
         }
-        return albumRepository.findAll(keyword, pageable);
+        return albumRepository.findAllByArtistId(artistId, keyword, status, pageable);
     }
 
     @Override
-    public Album updateAlbum(Long albumId, UpdateAlbumDTO updateAlbumDTO) throws DataNotFoundException {
+    public Page<Album> Get(String keyword, Album.Status status, Pageable pageable) {
+        if (keyword != null) {
+            keyword = keyword.trim();
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+        return albumRepository.get(keyword, status, pageable);
+    }
+
+    @Override
+    public void Delete(Long albumId) throws Exception {
         Optional<Album> exitedAlbum = albumRepository.findById(albumId);
         if (exitedAlbum.isEmpty())
             throw new DataNotFoundException("Album with ID %s no found".formatted(albumId));
         Album album = exitedAlbum.get();
+        if (album.getDeletedAt() != null)
+            throw new DataNotFoundException("Album with ID %s already deleted".formatted(albumId));
 
-        if (updateAlbumDTO.getName() != null)
-            album.setName(updateAlbumDTO.getName());
-        if (updateAlbumDTO.getDescription() != null)
-            album.setDescription(updateAlbumDTO.getDescription());
-
-        verifyListSongId(updateAlbumDTO.getAddList());
-        verifyListSongId(updateAlbumDTO.getDeleteList());
-
-        Map<Long, Song> addListSongs = songRepository.findAllById(updateAlbumDTO.getAddList())
-                .stream()
-                .collect(Collectors.toMap(Song::getId, song -> song));
-
-        for (Long songId : updateAlbumDTO.getAddList()) {
-            Song song = addListSongs.get(songId);
-            if (song != null) {
-                song.setAlbumId(albumId);
-                songRepository.save(song);
-            }
-        }
-
-        Map<Long, Song> deleteListSongs = songRepository.findAllById(updateAlbumDTO.getDeleteList())
-                .stream()
-                .collect(Collectors.toMap(Song::getId, song -> song));
-
-        for (Long songId : updateAlbumDTO.getDeleteList()) {
-            Song song = deleteListSongs.get(songId);
-            if (song != null) {
-                song.setAlbumId(null);
-                songRepository.save(song);
-            }
-        }
-        return album;
-
-    }
-
-    public void verifyListSongId(List<Long> songIdList) throws DataNotFoundException {
-        for (Long songId : songIdList) {
-            Optional<Song> existedSong = songRepository.findById(songId);
-            if (existedSong.isEmpty()) {
-                throw new DataNotFoundException("Song with ID %s not found".formatted(songId));
-            }
-        }
-    }
-
-    @Override
-    public Album Detail(Long albumId) throws DataNotFoundException {
-        return albumRepository.findById(albumId)
-                .orElseThrow(() -> new DataNotFoundException("Album with ID %s no found".formatted(albumId)));
+        album.setDeletedAt(LocalDateTime.now());
+        albumRepository.save(album);
     }
 }

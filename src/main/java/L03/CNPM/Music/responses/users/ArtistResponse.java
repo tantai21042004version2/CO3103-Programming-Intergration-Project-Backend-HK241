@@ -23,7 +23,7 @@ public class ArtistResponse {
         return ArtistResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
-                .imageUrl(user.getPublicImageId())
+                .imageUrl(user.getImageUrl())
                 .build();
     }
 }

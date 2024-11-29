@@ -3,14 +3,17 @@ package L03.CNPM.Music.responses.song;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import L03.CNPM.Music.models.Song;
-import L03.CNPM.Music.models.Album;
 import L03.CNPM.Music.models.User;
-import L03.CNPM.Music.responses.album.AlbumResponse;
 import L03.CNPM.Music.responses.users.ArtistResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 @Data
 @Builder
@@ -36,16 +39,18 @@ public class SongDetailResponse {
     private ArtistResponse artist;
 
     @JsonProperty("release_date")
-    private String releaseDate;
+    private LocalDate releaseDate;
 
     @JsonProperty("status")
     private Song.Status status;
 
     @JsonProperty("created_at")
-    private String createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
     @JsonProperty("updated_at")
-    private String updatedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 
     public static SongDetailResponse fromSong(Song song, User artist) {
         if (artist == null) {

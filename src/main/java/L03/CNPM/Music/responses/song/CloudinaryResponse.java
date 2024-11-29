@@ -19,15 +19,11 @@ public class CloudinaryResponse {
     @JsonProperty("duration")
     private Double duration;
 
-    @JsonProperty("cloudinary_version")
-    private Long cloudinaryVersion;
-
     public static CloudinaryResponse fromMap(Map<String, Object> map) {
         return CloudinaryResponse.builder()
                 .secureUrl((String) map.get("secure_url"))
                 .publicId((String) map.get("public_id"))
                 .duration((Double) map.get("duration"))
-                .cloudinaryVersion((Long) map.get("cloudinary_version"))
                 .build();
     }
 }

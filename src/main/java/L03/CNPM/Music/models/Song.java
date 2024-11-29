@@ -1,5 +1,8 @@
 package L03.CNPM.Music.models;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +12,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@Table(name = "song")
+@Table(name = "songs")
 public class Song {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,6 +40,9 @@ public class Song {
     @Column(name = "public_id", nullable = false, length = 255)
     private String publicId;
 
+    @Column(name = "genre_id")
+    private Long genreId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, columnDefinition = "ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT'")
     @Builder.Default
@@ -46,13 +52,16 @@ public class Song {
     private String description;
 
     @Column(name = "release_date", nullable = false)
-    private String releaseDate;
+    private LocalDate releaseDate;
 
     @Column(name = "created_at", nullable = false)
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at", nullable = false)
-    private String updatedAt;
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     public enum Status {
         DRAFT,

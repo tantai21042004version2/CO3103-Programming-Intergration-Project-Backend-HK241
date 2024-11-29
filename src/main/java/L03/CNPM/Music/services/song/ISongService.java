@@ -1,5 +1,6 @@
 package L03.CNPM.Music.services.song;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.data.domain.Page;
@@ -15,6 +16,8 @@ public interface ISongService {
     Page<Song> findAllPending(String keyword, Pageable pageable);
 
     Page<Song> findAllByArtistId(String artistId, Pageable pageable);
+
+    List<Song> findAllByAlbumId(Long albumId);
 
     Song approveSong(String id) throws Exception;
 
