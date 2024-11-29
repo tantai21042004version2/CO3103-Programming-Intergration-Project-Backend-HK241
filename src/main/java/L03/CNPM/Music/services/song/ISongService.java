@@ -11,23 +11,23 @@ import L03.CNPM.Music.DTOS.song.SongMetadataDTO;
 import L03.CNPM.Music.models.Song;
 
 public interface ISongService {
-    Page<Song> findAll(String keyword, Pageable pageable);
+    Page<Song> Get(String keyword, Pageable pageable);
 
-    Page<Song> findAllPending(String keyword, Pageable pageable);
+    Page<Song> GetPending(String keyword, Pageable pageable);
 
-    Page<Song> findAllByArtistId(String artistId, Pageable pageable);
+    Page<Song> GetByArtirstId(String artistId, Pageable pageable);
 
-    List<Song> findAllByAlbumId(Long albumId);
+    List<Song> GetByAlbumtId(Long albumId);
 
-    Song approveSong(String id) throws Exception;
+    Song ApproveSong(String id) throws Exception;
 
-    Song rejectSong(String id) throws Exception;
+    Song RejectSong(String id) throws Exception;
 
-    Map<String, Object> uploadSong(MultipartFile file) throws Exception;
+    Map<String, Object> UploadSong(MultipartFile file) throws Exception;
 
-    Song createSong(SongMetadataDTO metadataSongDTO) throws Exception;
+    Song Create(SongMetadataDTO metadataSongDTO) throws Exception;
 
-    void deleteSong(String publicId) throws Exception;
+    void Delete(String publicId) throws Exception;
 
-    Song updateSong(String id, String userId) throws Exception;
+    Song Update(String id, String userId) throws Exception;
 }

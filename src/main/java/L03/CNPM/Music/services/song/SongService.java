@@ -39,7 +39,7 @@ public class SongService implements ISongService {
     private final GenreRepository genreRepository;
 
     @Override
-    public Page<Song> findAll(String keyword, Pageable pageable) {
+    public Page<Song> Get(String keyword, Pageable pageable) {
         if (keyword != null) {
             keyword = keyword.trim();
             if (keyword.isEmpty()) {
@@ -50,7 +50,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Page<Song> findAllPending(String keyword, Pageable pageable) {
+    public Page<Song> GetPending(String keyword, Pageable pageable) {
         if (keyword != null) {
             keyword = keyword.trim();
             if (keyword.isEmpty()) {
@@ -61,17 +61,17 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Page<Song> findAllByArtistId(String artistId, Pageable pageable) {
+    public Page<Song> GetByArtirstId(String artistId, Pageable pageable) {
         return songRepository.findAllByArtistId(Long.parseLong(artistId), pageable);
     }
 
     @Override
-    public List<Song> findAllByAlbumId(Long albumId) {
+    public List<Song> GetByAlbumtId(Long albumId) {
         return songRepository.findAllByAlbumId(albumId);
     }
 
     @Override
-    public Song approveSong(String id) throws Exception {
+    public Song ApproveSong(String id) throws Exception {
         Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
         if (existingSong.isEmpty()) {
             throw new DataNotFoundException("Song not found.");
@@ -89,7 +89,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song rejectSong(String id) throws Exception {
+    public Song RejectSong(String id) throws Exception {
         Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
         if (existingSong.isEmpty()) {
             throw new DataNotFoundException("Song not found.");
@@ -106,7 +106,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Map<String, Object> uploadSong(MultipartFile file) throws Exception {
+    public Map<String, Object> UploadSong(MultipartFile file) throws Exception {
         Map<String, Object> response = null;
 
         if (file == null || file.isEmpty()) {
@@ -141,7 +141,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song createSong(SongMetadataDTO metadataSongDTO) throws Exception {
+    public Song Create(SongMetadataDTO metadataSongDTO) throws Exception {
         Optional<User> existingArtist = userRepository.findById(metadataSongDTO.getArtistId());
         if (existingArtist.isEmpty()) {
             throw new DataNotFoundException("Artist not found.");
@@ -183,7 +183,7 @@ public class SongService implements ISongService {
 
     @Override
     @Transactional
-    public void deleteSong(String publicId) throws Exception {
+    public void Delete(String publicId) throws Exception {
         if (publicId == null || publicId.isEmpty()) {
             throw new IllegalArgumentException("Public ID is invalid.");
         }
@@ -199,7 +199,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song updateSong(String id, String userId) throws Exception {
+    public Song Update(String id, String userId) throws Exception {
         User user = null;
         Optional<User> existingArtist = userRepository.findById(Long.parseLong(userId));
         if (existingArtist.isEmpty()) {

@@ -195,7 +195,7 @@ public class AlbumController {
                         @PathVariable("album_id") Long albumId) {
                 try {
                         Album album = albumService.Detail(albumId);
-                        List<Song> songs = songService.findAllByAlbumId(albumId);
+                        List<Song> songs = songService.GetByAlbumtId(albumId);
                         User artist = userService.Detail(album.getArtistId());
                         Genre genre = genreService.Detail(album.getGenreId());
 
@@ -260,7 +260,7 @@ public class AlbumController {
 
                         Album album = albumService.Create(uploadAlbumDTO, artistId);
 
-                        List<Song> songs = songService.findAllByAlbumId(album.getId());
+                        List<Song> songs = songService.GetByAlbumtId(album.getId());
                         Genre genre = genreService.Detail(album.getGenreId());
                         User artist = userService.Detail(artistId);
 
@@ -289,7 +289,7 @@ public class AlbumController {
                         Long artistId = Long.parseLong(jwtTokenUtils.getUserId(extractedToken));
 
                         Album album = albumService.AddSong(addSongAlbumDTO, albumId, artistId);
-                        List<Song> songs = songService.findAllByAlbumId(albumId);
+                        List<Song> songs = songService.GetByAlbumtId(albumId);
                         Genre genre = genreService.Detail(album.getGenreId());
                         User artist = userService.Detail(artistId);
 
@@ -317,7 +317,7 @@ public class AlbumController {
                         Long artistId = Long.parseLong(jwtTokenUtils.getUserId(extractedToken));
 
                         Album album = albumService.SubmitAlbum(albumId, artistId);
-                        List<Song> songs = songService.findAllByAlbumId(albumId);
+                        List<Song> songs = songService.GetByAlbumtId(albumId);
                         Genre genre = genreService.Detail(album.getGenreId());
                         User artist = userService.Detail(artistId);
 
@@ -343,7 +343,7 @@ public class AlbumController {
                 try {
 
                         Album album = albumService.Approve(albumId, approveAlbumDTO);
-                        List<Song> songs = songService.findAllByAlbumId(albumId);
+                        List<Song> songs = songService.GetByAlbumtId(albumId);
                         Genre genre = genreService.Detail(album.getGenreId());
                         User artist = userService.Detail(album.getArtistId());
 
