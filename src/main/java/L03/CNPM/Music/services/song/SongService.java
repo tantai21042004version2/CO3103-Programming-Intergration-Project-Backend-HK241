@@ -202,6 +202,15 @@ public class SongService implements ISongService {
     }
 
     @Override
+    public Song Detail(String id) throws Exception {
+        Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
+        if (existingSong.isEmpty()) {
+            throw new DataNotFoundException("Song not found.");
+        }
+        return existingSong.get();
+    }
+
+    @Override
     @Transactional
     public void Delete(String publicId) throws Exception {
         if (publicId == null || publicId.isEmpty()) {
