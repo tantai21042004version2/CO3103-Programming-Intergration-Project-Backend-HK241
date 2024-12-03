@@ -202,8 +202,8 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song Detail(String id) throws Exception {
-        Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
+    public Song Detail(Long id) throws Exception {
+        Optional<Song> existingSong = songRepository.findById(id);
         if (existingSong.isEmpty()) {
             throw new DataNotFoundException("Song not found.");
         }
@@ -228,7 +228,7 @@ public class SongService implements ISongService {
     }
 
     @Override
-    public Song Update(String id, String userId) throws Exception {
+    public Song Update(Long id, String userId) throws Exception {
         User user = null;
         Optional<User> existingArtist = userRepository.findById(Long.parseLong(userId));
         if (existingArtist.isEmpty()) {
@@ -236,7 +236,7 @@ public class SongService implements ISongService {
         }
         user = existingArtist.get();
 
-        Optional<Song> existingSong = songRepository.findById(Long.parseLong(id));
+        Optional<Song> existingSong = songRepository.findById(id);
         if (existingSong.isEmpty()) {
             throw new DataNotFoundException("Song not found.");
         }

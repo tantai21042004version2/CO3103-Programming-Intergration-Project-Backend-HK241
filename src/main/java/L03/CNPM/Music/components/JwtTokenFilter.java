@@ -111,7 +111,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 Pair.of(String.format("%s/albums/detail/.*", apiPrefix), "GET"),
                 Pair.of(String.format("%s/playlists/list", apiPrefix), "GET"),
                 Pair.of(String.format("%s/playlists/detail/.*", apiPrefix), "GET"),
-                Pair.of(String.format("%s/comments/list/.*", apiPrefix), "GET"));
+                Pair.of(String.format("%s/comments/list/.*", apiPrefix), "GET"),
+                Pair.of(String.format("%s/songs/detail/.*", apiPrefix), "GET"));
 
         String requestPath = request.getServletPath();
         String requestMethod = request.getMethod();

@@ -18,6 +18,10 @@ import L03.CNPM.Music.responses.song.SongResponse;
 import jakarta.validation.Valid;
 
 import L03.CNPM.Music.models.User;
+import L03.CNPM.Music.models.Album;
+import L03.CNPM.Music.models.Genre;
+import L03.CNPM.Music.services.album.IAlbumService;
+import L03.CNPM.Music.services.gerne.IGenreService;
 
 import java.util.List;
 import java.util.Map;
@@ -41,6 +45,8 @@ public class SongController {
         private final JwtTokenUtils jwtTokenUtils;
         private final DateUtils dateUtils;
         private final IUserService userService;
+        private final IAlbumService albumService;
+        private final IGenreService genreService;
 
         // ENDPOINT: {{API_PREFIX}}/songs [GET]
         // GET ALL SONGS IN SYSTEM, USE MAINLY FOR ALL SYSTEM
@@ -97,6 +103,38 @@ public class SongController {
                                 .status(HttpStatus.OK)
                                 .data(songListResponse)
                                 .build());
+        }
+
+        @GetMapping("/detail/{id}")
+        public ResponseEntity<ResponseObject> Detail(@PathVariable("id") Long id) {
+                try {
+                        Song song = songService.Detail(id);
+
+                        User artist = null;
+                        if (song.getArtistId() != null) {
+                                artist = userService.Detail(song.getArtistId());
+                        }
+                        Album album = null;
+                        if (song.getAlbumId() != null) {
+                                album = albumService.Detail(song.getAlbumId());
+                        }
+                        Genre genre = null;
+                        if (song.getGenreId() != null) {
+                                genre = genreService.Detail(song.getGenreId());
+                        }
+
+                        return ResponseEntity.ok(ResponseObject.builder()
+                                        .message("Get song detail successfully")
+                                        .status(HttpStatus.OK)
+                                        .data(SongDetailResponse.fromSong(song, artist, album, genre))
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
+                                        .message(e.getMessage())
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .data(null)
+                                        .build());
+                }
         }
 
         // ENDPOINT: {{API_PREFIX}}/songs/artist [GET]
@@ -318,12 +356,13 @@ public class SongController {
 
                         User artist = userService.Detail(newSong.getArtistId());
 
-                        // Album album = albumService.Detail(newSong.getAlbumId());
+                        Album album = albumService.Detail(newSong.getAlbumId());
+                        Genre genre = genreService.Detail(newSong.getGenreId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Create song successfully")
                                         .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(newSong, artist))
+                                        .data(SongDetailResponse.fromSong(newSong, artist, album, genre))
                                         .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
@@ -365,16 +404,16 @@ public class SongController {
                 }
 
                 try {
-                        Song song = songService.Update(id, userId);
+                        Song song = songService.Update(Long.parseLong(id), userId);
 
                         User artist = userService.Detail(song.getArtistId());
-
-                        // Album album = albumService.Detail(song.getAlbumId());
+                        Album album = albumService.Detail(song.getAlbumId());
+                        Genre genre = genreService.Detail(song.getGenreId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Update song successfully")
                                         .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(song, artist))
+                                        .data(SongDetailResponse.fromSong(song, artist, album, genre))
                                         .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
@@ -407,13 +446,13 @@ public class SongController {
                         Song song = songService.ApproveSong(id);
 
                         User artist = userService.Detail(song.getArtistId());
-
-                        // Album album = albumService.Detail(song.getAlbumId());
+                        Album album = albumService.Detail(song.getAlbumId());
+                        Genre genre = genreService.Detail(song.getGenreId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Approve song successfully")
                                         .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(song, artist))
+                                        .data(SongDetailResponse.fromSong(song, artist, album, genre))
                                         .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
@@ -446,13 +485,13 @@ public class SongController {
                         Song song = songService.RejectSong(id);
 
                         User artist = userService.Detail(song.getArtistId());
-
-                        // Album album = albumService.Detail(song.getAlbumId());
+                        Album album = albumService.Detail(song.getAlbumId());
+                        Genre genre = genreService.Detail(song.getGenreId());
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Reject song successfully")
                                         .status(HttpStatus.OK)
-                                        .data(SongDetailResponse.fromSong(song, artist))
+                                        .data(SongDetailResponse.fromSong(song, artist, album, genre))
                                         .build());
                 } catch (Exception e) {
                         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ResponseObject.builder()
