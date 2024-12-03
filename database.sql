@@ -1,119 +1,26 @@
 ---------- USERS TABLE ----------
 CREATE TABLE users (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,            
-    email VARCHAR(100) UNIQUE NOT NULL,             
-    username VARCHAR(50) UNIQUE NOT NULL,           
-    password VARCHAR(255) NOT NULL,                 
-    profile_image VARCHAR(255),                     
-    country VARCHAR(50),                            
-    date_of_birth DATE,                             
-    is_active BOOLEAN DEFAULT TRUE,                 
-    role_id BIGINT,                                 
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP 
-);
-
-
-ALTER TABLE users
-ADD CONSTRAINT fk_role_id
-FOREIGN KEY (role_id) REFERENCES roles(id)
-ON DELETE SET NULL;
-
-ALTER TABLE users
-ADD COLUMN public_image_id VARCHAR(255);
-
-ALTER TABLE users
-ADD COLUMN artist_name VARCHAR(255) DEFAULT NULL,
-ADD COLUMN biography TEXT DEFAULT NULL;
-
----------- ROLES TABLE ----------
-CREATE TABLE roles (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,      
-    name VARCHAR(50) NOT NULL UNIQUE           
-);
-
----------- TOKENS TABLE ----------
-CREATE TABLE tokens (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    token VARCHAR(255),
-    refresh_token VARCHAR(255),
-    token_type VARCHAR(50),
-    expiration_date VARCHAR(255),
-    refresh_expiration_date VARCHAR(255),
-    is_mobile TINYINT(1),
-    revoked BOOLEAN DEFAULT false,
-    expired BOOLEAN DEFAULT false,
-    user_id BIGINT,
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    email VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    country VARCHAR(255),
+    date_of_birth DATE,
+    image_url VARCHAR(255),
+    artist_name VARCHAR(255),
+    biography TEXT,
+    is_active TINYINT(1) DEFAULT 1,
+    role_id BIGINT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE
+    SET
+        NULL
 );
 
-CREATE TABLE genre (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE
-);
-
-
-CREATE TABLE album (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    artist_id BIGINT NOT NULL,
-    release_date VARCHAR(255),
-    cover_url VARCHAR(255),
-    status ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
-    created_at VARCHAR(255),
-    updated_at VARCHAR(255),
-    FOREIGN KEY (artist_id) REFERENCES users(id) ON DELETE CASCADE
-);
-
-ALTER TABLE album
-ADD COLUMN genre_id BIGINT NOT NULL,
-ADD CONSTRAINT fk_album_genre
-FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE;
-
-ALTER TABLE albums
-MODIFY COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-MODIFY COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-MODIFY COLUMN release_date DATE;
-
-CREATE TABLE playlist (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
-    user_id BIGINT NOT NULL,
-    is_public BOOLEAN DEFAULT TRUE,
-    status ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
-    created_at VARCHAR(255),
-    updated_at VARCHAR(255),
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
-ALTER TABLE playlist
-ADD COLUMN cover_url VARCHAR(255) AFTER name;
-ALTER TABLE playlist
-ADD COLUMN description TEXT AFTER name;
-ALTER TABLE playlist
-ADD COLUMN genre_id BIGINT AFTER description,
-ADD CONSTRAINT fk_genre_id
-FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE SET NULL;
-ALTER TABLE playlists MODIFY COLUMN status VARCHAR(50) NOT NULL DEFAULT 'DRAFT';
-
-CREATE TABLE song_playlist (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    song_id BIGINT NOT NULL,
-    playlist_id BIGINT NOT NULL,
-    UNIQUE (song_id, playlist_id),
-    FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
-    FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
-);
-
-
-CREATE TABLE song_genre (
-    song_id BIGINT NOT NULL,
-    genre_id BIGINT NOT NULL,
-    PRIMARY KEY (song_id, genre_id),
-    FOREIGN KEY (song_id) REFERENCES song(id) ON DELETE CASCADE,
-    FOREIGN KEY (genre_id) REFERENCES genre(id) ON DELETE CASCADE
-);
-
-CREATE TABLE song (
+---------- SONGS TABLE ----------
+CREATE TABLE songs (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     artist_id BIGINT NOT NULL,
@@ -123,40 +30,157 @@ CREATE TABLE song (
     public_id VARCHAR(255) NOT NULL,
     status ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
     description TEXT,
-    release_date VARCHAR(255),
-    created_at VARCHAR(255),
+    release_date DATE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
     FOREIGN KEY (artist_id) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (album_id) REFERENCES album(id) ON DELETE SET NULL
+    FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE
+    SET
+        NULL
 );
 
-ALTER TABLE songs
-MODIFY COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-MODIFY COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-MODIFY COLUMN release_date DATE;
-ADD COLUMN deleted_at DATETIME AFTER updated_at;
+---------- ALBUMS TABLE ----------
+CREATE TABLE albums (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    artist_id BIGINT NOT NULL,
+    release_date DATE,
+    cover_url VARCHAR(255),
+    status ENUM('DRAFT', 'PENDING', 'APPROVED', 'REJECTED') DEFAULT 'DRAFT',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    description TEXT,
+    genre_id BIGINT NOT NULL,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (artist_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE
+    SET
+        NULL
+);
 
--- CREATE TABLE report (
---     report_id BIGINT AUTO_INCREMENT PRIMARY KEY,
---     user_id BIGINT NOT NULL,
---     song_id BIGINT,
---     album_id BIGINT,
---     report_reason TEXT,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
---     FOREIGN KEY (song_id) REFERENCES song(song_id) ON DELETE CASCADE,
---     FOREIGN KEY (album_id) REFERENCES album(album_id) ON DELETE CASCADE
--- );
+---------- PLAYLISTS TABLE ----------   
+CREATE TABLE playlists (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    description TEXT,
+    genre_id BIGINT,
+    cover_url VARCHAR(255),
+    user_id BIGINT NOT NULL,
+    is_public TINYINT(1) DEFAULT 0,
+    status VARCHAR(50) DEFAULT 'DRAFT',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (genre_id) REFERENCES genres(id) ON DELETE
+    SET
+        NULL,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
 
+---------- SONG_PLAYLIST TABLE ----------
+CREATE TABLE song_playlist (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    song_id BIGINT NOT NULL,
+    playlist_id BIGINT NOT NULL,
+    UNIQUE (song_id, playlist_id),
+    FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE,
+    FOREIGN KEY (playlist_id) REFERENCES playlists(id) ON DELETE CASCADE
+);
 
--- CREATE TABLE review (
---     review_id BIGINT AUTO_INCREMENT PRIMARY KEY,
---     user_id BIGINT NOT NULL,
---     song_id BIGINT,
---     album_id BIGINT,
---     rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
---     review_text TEXT,
---     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
---     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
---     FOREIGN KEY (song_id) REFERENCES song(song_id) ON DELETE CASCADE,
---     FOREIGN KEY (album_id) REFERENCES album(album_id) ON DELETE CASCADE
--- );
+---------- ROLES TABLE ----------
+CREATE TABLE roles (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+---------- GENRES TABLE ----------
+CREATE TABLE genres (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL UNIQUE
+);
+
+CREATE TABLE favorites (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    item_id BIGINT NOT NULL,
+    type ENUM('SONG', 'ALBUM', 'PLAYLIST') NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE comments (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    song_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ratings (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    item_id BIGINT NOT NULL,
+    type ENUM('SONG', 'ALBUM', 'PLAYLIST') NOT NULL,
+    rating INT NOT NULL CHECK (
+        rating BETWEEN 1
+        AND 5
+    ),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE notifications (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    content TEXT NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE downloads (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    song_id BIGINT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (song_id) REFERENCES songs(id) ON DELETE CASCADE
+);
+
+CREATE TABLE reports (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    item_id BIGINT NOT NULL,
+    type ENUM('SONG', 'ALBUM', 'PLAYLIST', 'COMMENT') NOT NULL,
+    reason TEXT NOT NULL,
+    status ENUM('PENDING', 'RESOLVED', 'DISMISSED') DEFAULT 'PENDING',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+CREATE TABLE subscriptions (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    plan ENUM('FREE', 'PREMIUM') DEFAULT 'FREE',
+    start_date DATE NOT NULL,
+    end_date DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);

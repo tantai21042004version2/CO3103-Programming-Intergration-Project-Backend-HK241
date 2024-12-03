@@ -8,8 +8,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface IUserService {
     Page<User> findAll(String keyword, Pageable pageable);
+
+    List<User> GetByIDs(List<Long> userIds) throws Exception;
 
     String Login(UserLoginDTO userLoginDTO) throws Exception;
 

@@ -44,7 +44,8 @@ public class WebSecurityConfiguration {
                                 String.format("%s/albums/list", apiPrefix),
                                 String.format("%s/albums/detail/*", apiPrefix),
                                 String.format("%s/playlists/list", apiPrefix),
-                                String.format("%s/playlists/detail/*", apiPrefix))
+                                String.format("%s/playlists/detail/*", apiPrefix),
+                                String.format("%s/comments/list/*", apiPrefix))
                         .permitAll()
                         .anyRequest().authenticated());
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);

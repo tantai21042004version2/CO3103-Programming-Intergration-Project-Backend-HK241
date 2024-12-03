@@ -1,5 +1,9 @@
 package L03.CNPM.Music.responses.users;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import L03.CNPM.Music.models.Role;
@@ -25,7 +29,8 @@ public class UserDetailResponse {
     private String country;
 
     @JsonProperty("date_of_birth")
-    private String dateOfBirth;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private Date dateOfBirth;
 
     @JsonProperty("role")
     private Role role;
@@ -37,10 +42,12 @@ public class UserDetailResponse {
     private String imageUrl;
 
     @JsonProperty("created_at")
-    private String createdAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
     @JsonProperty("updated_at")
-    private String updatedAt;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updatedAt;
 
     public static UserDetailResponse fromUser(User user) {
         return UserDetailResponse.builder()
@@ -52,8 +59,8 @@ public class UserDetailResponse {
                 .role(user.getRole())
                 .active(user.isActive())
                 .imageUrl(user.getImageUrl())
-                .createdAt(user.getCreatedAt().toString())
-                .updatedAt(user.getUpdatedAt().toString())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 }

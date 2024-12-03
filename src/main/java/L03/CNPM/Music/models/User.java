@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -26,36 +27,39 @@ public class User implements UserDetails {
     @Column(name = "username", nullable = false, unique = true)
     private String username;
 
+    @Column(name = "artist_name")
+    private String artistName;
+
     @Column(name = "password", nullable = false)
     private String password;
-
-    @Column(name = "image_url")
-    private String imageUrl;
 
     @Column(name = "country")
     private String country;
 
     @Column(name = "date_of_birth")
-    private String dateOfBirth;
+    private Date dateOfBirth;
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
+
+    @Column(name = "image_url")
+    private String imageUrl;
 
     @ManyToOne
     @JoinColumn(name = "role_id", foreignKey = @ForeignKey(name = "fk_role_id"))
     private Role role;
 
-    @Column(name = "artist_name")
-    private String artistName;
-
     @Column(name = "biography")
     private String biography;
 
     @Column(name = "created_at", updatable = false)
-    private String createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
-    private String updatedAt;
+    private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

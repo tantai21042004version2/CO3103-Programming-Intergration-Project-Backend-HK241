@@ -20,11 +20,15 @@ public class UserResponse {
     @JsonProperty("role")
     private Role role;
 
+    @JsonProperty("image_url")
+    private String imageUrl;
+
     public static UserResponse fromUser(User user) {
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .role(user.getRole())
+                .imageUrl(user.getImageUrl())
                 .build();
     }
 }

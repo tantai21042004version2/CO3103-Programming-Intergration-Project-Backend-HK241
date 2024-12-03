@@ -13,7 +13,6 @@ import L03.CNPM.Music.models.Role;
 import L03.CNPM.Music.models.User;
 import L03.CNPM.Music.repositories.UserRepository;
 import L03.CNPM.Music.repositories.RoleRepository;
-import L03.CNPM.Music.utils.DateUtils;
 import L03.CNPM.Music.utils.MessageKeys;
 import L03.CNPM.Music.utils.ValidationUtils;
 import lombok.AllArgsConstructor;
@@ -30,8 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 
+import java.sql.Date;
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -45,11 +48,17 @@ public class UserService implements IUserService {
     private final AuthenticationManager authenticationManager;
     private final Cloudinary cloudinary;
     private final ValidationUtils validationUtils;
-    private final DateUtils dateUtils;
 
     @Override
     public Page<User> findAll(String keyword, Pageable pageable) {
         return userRepository.findAll(keyword, pageable);
+    }
+
+    @Override
+    public List<User> GetByIDs(List<Long> userIds) throws Exception {
+        return (List<User>) userRepository.findAllById(userIds)
+                .stream()
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -75,9 +84,9 @@ public class UserService implements IUserService {
                 .username(createUserDTO.getUsername())
                 .password(encodedPassword)
                 .country(validationUtils.convertAndUpperCase(createUserDTO.getCountry()))
-                .dateOfBirth(dateUtils.validateDateOfBirth(createUserDTO.getDateOfBirth()))
-                .createdAt(dateUtils.getCurrentDate())
-                .updatedAt(dateUtils.getCurrentDate())
+                .dateOfBirth(Date.valueOf(createUserDTO.getDateOfBirth()))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .isActive(true)
                 .role(role)
                 .build();
@@ -179,7 +188,7 @@ public class UserService implements IUserService {
             String encodedPassword = passwordEncoder.encode(newPassword);
             existingUser.setPassword(encodedPassword);
         }
-        existingUser.setUpdatedAt(dateUtils.getCurrentDate());
+        existingUser.setUpdatedAt(LocalDateTime.now());
         return userRepository.save(existingUser);
     }
 

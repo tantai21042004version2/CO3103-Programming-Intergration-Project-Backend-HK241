@@ -25,6 +25,8 @@ public interface ISongService {
 
     Song RejectSong(String id) throws Exception;
 
+    Song Detail(String id) throws Exception;
+
     Map<String, Object> UploadSong(MultipartFile file) throws Exception;
 
     Song Create(SongMetadataDTO metadataSongDTO) throws Exception;
