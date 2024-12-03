@@ -53,7 +53,7 @@ public class CommentController {
     private final JwtTokenUtils jwtTokenUtils;
 
     @GetMapping("/list/{song_id}")
-    public ResponseEntity<L03.CNPM.Music.responses.ResponseObject> Get(
+    public ResponseEntity<ResponseObject> Get(
             @PathVariable("song_id") Long songId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit) {
@@ -148,7 +148,7 @@ public class CommentController {
             CompletableFuture<Song> songFuture = CompletableFuture
                     .supplyAsync(() -> {
                         try {
-                            return songService.Detail(comment.getSongId().toString());
+                            return songService.Detail(comment.getSongId());
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -213,7 +213,7 @@ public class CommentController {
             CompletableFuture<Song> songFuture = CompletableFuture
                     .supplyAsync(() -> {
                         try {
-                            return songService.Detail(comment.getSongId().toString());
+                            return songService.Detail(comment.getSongId());
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }
@@ -264,7 +264,7 @@ public class CommentController {
             CompletableFuture<Song> songFuture = CompletableFuture
                     .supplyAsync(() -> {
                         try {
-                            return songService.Detail(comment.getSongId().toString());
+                            return songService.Detail(comment.getSongId());
                         } catch (Exception e) {
                             throw new RuntimeException(e);
                         }

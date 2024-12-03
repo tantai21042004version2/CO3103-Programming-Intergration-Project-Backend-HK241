@@ -25,7 +25,7 @@ public interface ISongService {
 
     Song RejectSong(String id) throws Exception;
 
-    Song Detail(String id) throws Exception;
+    Song Detail(Long id) throws Exception;
 
     Map<String, Object> UploadSong(MultipartFile file) throws Exception;
 
@@ -33,5 +33,5 @@ public interface ISongService {
 
     void Delete(String publicId) throws Exception;
 
-    Song Update(String id, String userId) throws Exception;
+    Song Update(Long id, String userId) throws Exception;
 }
