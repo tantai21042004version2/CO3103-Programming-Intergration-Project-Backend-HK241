@@ -43,14 +43,24 @@ public class SongService implements ISongService {
     private final SongPlaylistRepository songPlaylistRepository;
 
     @Override
-    public Page<Song> Get(String keyword, Pageable pageable) {
+    public Page<Song> Get(String keyword, String albumId, Pageable pageable) {
         if (keyword != null) {
             keyword = keyword.trim();
             if (keyword.isEmpty()) {
                 keyword = null;
             }
         }
-        return songRepository.findAll(keyword, pageable);
+
+        Long albumIdLong = null;
+        if (albumId != null) {
+            albumId = albumId.trim();
+            if (albumId.isEmpty()) {
+                albumId = null;
+            } else {
+                albumIdLong = Long.parseLong(albumId);
+            }
+        }
+        return songRepository.findAll(keyword, albumIdLong, pageable);
     }
 
     @Override
