@@ -38,6 +38,7 @@ public class JwtTokenUtils {
         claims.put("subject", subject);
         claims.put("userId", String.valueOf(user.getId()));
         claims.put("role", user.getRole().getName());
+        claims.put("image_url", user.getImageUrl());
 
         long now = System.currentTimeMillis();
         Date issuedAt = new Date(now);
