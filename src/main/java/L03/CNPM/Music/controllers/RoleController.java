@@ -23,16 +23,17 @@ public class RoleController {
     // GET ALL ROLES IN SYSTEM, USE BEFORE LOGIN
     // HEADERS: NO AUTHENTICATION
     // QUERY: NO QUERY
-    /* RESPONSE: 
+    /*
+     * RESPONSE:
      * {
-     *  "message": "Get roles successfully",    
-     *  "status": "200 OK",
-     *  "data": [
-     *      {
-     *          "id": 1,
-     *          "name": "ADMIN"
-     *      },
-     *  ]
+     * "message": "Get roles successfully",
+     * "status": "200 OK",
+     * "data": [
+     * {
+     * "id": 1,
+     * "name": "ADMIN"
+     * },
+     * ]
      * }
      */
     @GetMapping("")
