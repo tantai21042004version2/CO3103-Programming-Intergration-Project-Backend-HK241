@@ -71,6 +71,7 @@ public class SongController {
         @GetMapping("")
         public ResponseEntity<ResponseObject> Get(
                         @RequestParam(defaultValue = "", required = false) String keyword,
+                        @RequestParam(defaultValue = "", value = "album_id", required = false) String albumId,
                         @RequestParam(defaultValue = "1") int page,
                         @RequestParam(defaultValue = "10") int limit) {
                 if (page < 1) {
@@ -81,7 +82,7 @@ public class SongController {
                                 page - 1, limit,
                                 Sort.by("id").ascending());
 
-                Page<SongResponse> songPage = songService.Get(keyword, pageRequest)
+                Page<SongResponse> songPage = songService.Get(keyword, albumId, pageRequest)
                                 .map(SongResponse::fromSong);
 
                 int totalPages = songPage.getTotalPages();

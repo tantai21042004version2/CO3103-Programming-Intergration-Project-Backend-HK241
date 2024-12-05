@@ -14,8 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, Long> {
-    @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%) AND s.status = 'APPROVED'")
-    Page<Song> findAll(@Param("keyword") String keyword, Pageable pageable);
+    @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%) AND (:albumId IS NULL OR s.albumId = :albumId) AND s.status = 'APPROVED'")
+    Page<Song> findAll(@Param("keyword") String keyword, @Param("albumId") Long albumId, Pageable pageable);
 
     @Query("SELECT s FROM Song s WHERE s.artistId = :artistId")
     Page<Song> findAllByArtistId(@Param("artistId") Long artistId, Pageable pageable);
