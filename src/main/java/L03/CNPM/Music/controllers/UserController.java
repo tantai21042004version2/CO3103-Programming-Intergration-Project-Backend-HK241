@@ -155,12 +155,20 @@ public class UserController {
                                         .build());
                 }
 
-                User newUser = userService.Create(createUserDTO);
-                return ResponseEntity.ok(ResponseObject.builder()
-                                .status(HttpStatus.CREATED)
-                                .data(UserDetailResponse.fromUser(newUser))
-                                .message(MessageKeys.REGISTER_SUCCESSFULLY)
-                                .build());
+                try {
+                        User newUser = userService.Create(createUserDTO);
+                        return ResponseEntity.ok(ResponseObject.builder()
+                                        .status(HttpStatus.CREATED)
+                                        .data(UserDetailResponse.fromUser(newUser))
+                                        .message(MessageKeys.REGISTER_SUCCESSFULLY)
+                                        .build());
+                } catch (Exception e) {
+                        return ResponseEntity.badRequest().body(ResponseObject.builder()
+                                        .status(HttpStatus.BAD_REQUEST)
+                                        .data(null)
+                                        .message("Username or email already exists")
+                                        .build());
+                }
         }
 
         // ENDPOINT: {{API_PREFIX}}/users/login [POST]
