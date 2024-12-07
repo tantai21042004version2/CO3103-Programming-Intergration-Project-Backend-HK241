@@ -61,7 +61,7 @@ public class WebSecurityConfiguration {
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
                 "https://co3103-programming-integration-project-55ev.onrender.com"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
 

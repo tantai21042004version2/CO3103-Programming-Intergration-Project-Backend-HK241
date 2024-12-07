@@ -50,6 +50,7 @@ public class AlbumController {
         public ResponseEntity<ResponseObject> GetAll(
                         @RequestParam(value = "keyword", required = false, defaultValue = "") String keyword,
                         @RequestParam(value = "page", required = false, defaultValue = "1") Integer page,
+                        @RequestParam(value = "status", required = false, defaultValue = "") Album.Status status,
                         @RequestParam(value = "limit", required = false, defaultValue = "10") Integer limit) {
                 try {
                         if (page < 1)
@@ -58,7 +59,7 @@ public class AlbumController {
                                 limit = 10;
 
                         Pageable pageable = PageRequest.of(page - 1, limit);
-                        Page<Album> albums = albumService.Get(keyword, null, pageable);
+                        Page<Album> albums = albumService.Get(keyword, status, pageable);
 
                         int totalPages = albums.getTotalPages();
                         int currentPage = albums.getNumber() + 1;
@@ -362,7 +363,7 @@ public class AlbumController {
         }
 
         @DeleteMapping("/{album_id}")
-        @PreAuthorize("hasRole('ROLE_ARTIST')")
+        @PreAuthorize("hasRole('ROLE_ARTIST') or hasRole('ROLE_ADMIN')")
         public ResponseEntity<ResponseObject> Delete(
                         @PathVariable("album_id") Long albumId) {
                 try {
