@@ -442,13 +442,33 @@ public class SongController {
          */
         @PatchMapping("/approve/{id}")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> ApproveSong(@PathVariable String id) {
+        public ResponseEntity<ResponseObject> ApproveSong(@PathVariable String id,
+                        @RequestHeader("Authorization") String authorizationHeader) {
+                String token = authorizationHeader.substring(7);
+                String userId = jwtTokenUtils.getUserId(token);
+
+                if (userId == null) {
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseObject.builder()
+                                        .message("Unauthorized")
+                                        .status(HttpStatus.UNAUTHORIZED)
+                                        .data(null)
+                                        .build());
+                }
+
                 try {
                         Song song = songService.ApproveSong(id);
 
                         User artist = userService.Detail(song.getArtistId());
-                        Album album = albumService.Detail(song.getAlbumId());
-                        Genre genre = genreService.Detail(song.getGenreId());
+
+                        Album album = null;
+                        Genre genre = null;
+                        if (song.getAlbumId() != null) {
+                                album = albumService.Detail(song.getAlbumId());
+                        }
+
+                        if (song.getGenreId() != null) {
+                                genre = genreService.Detail(song.getGenreId());
+                        }
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Approve song successfully")
@@ -481,13 +501,33 @@ public class SongController {
          */
         @PatchMapping("/reject/{id}")
         @PreAuthorize("hasRole('ROLE_ADMIN')")
-        public ResponseEntity<ResponseObject> RejectSong(@PathVariable String id) {
+        public ResponseEntity<ResponseObject> RejectSong(@PathVariable String id,
+                        @RequestHeader("Authorization") String authorizationHeader) {
+                String token = authorizationHeader.substring(7);
+                String userId = jwtTokenUtils.getUserId(token);
+
+                if (userId == null) {
+                        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ResponseObject.builder()
+                                        .message("Unauthorized")
+                                        .status(HttpStatus.UNAUTHORIZED)
+                                        .data(null)
+                                        .build());
+                }
+
                 try {
                         Song song = songService.RejectSong(id);
 
                         User artist = userService.Detail(song.getArtistId());
-                        Album album = albumService.Detail(song.getAlbumId());
-                        Genre genre = genreService.Detail(song.getGenreId());
+
+                        Album album = null;
+                        Genre genre = null;
+                        if (song.getAlbumId() != null) {
+                                album = albumService.Detail(song.getAlbumId());
+                        }
+
+                        if (song.getGenreId() != null) {
+                                genre = genreService.Detail(song.getGenreId());
+                        }
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Reject song successfully")
