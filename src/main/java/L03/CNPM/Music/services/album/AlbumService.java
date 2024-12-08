@@ -40,6 +40,16 @@ public class AlbumService implements IAlbumService {
     private final LocalizationUtils localizationUtils;
     private final Cloudinary cloudinary;
 
+    @Override
+    public Map<String, Object> AdminDashboard() throws Exception {
+        int totalAlbums = albumRepository.countAllByStatus(Album.Status.APPROVED);
+        int totalPendingAlbums = albumRepository.countAllByStatus(Album.Status.PENDING);
+
+        return Map.of(
+                "total_albums", totalAlbums,
+                "total_pending_albums", totalPendingAlbums);
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public Map<String, Object> UploadCloudinary(MultipartFile file, Long artistId) throws Exception {

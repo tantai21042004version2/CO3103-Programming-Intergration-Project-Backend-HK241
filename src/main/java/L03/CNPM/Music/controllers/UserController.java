@@ -6,12 +6,15 @@ import L03.CNPM.Music.DTOS.user.UserLoginDTO;
 import L03.CNPM.Music.components.JwtTokenUtils;
 import L03.CNPM.Music.components.LocalizationUtils;
 import L03.CNPM.Music.models.User;
+import L03.CNPM.Music.responses.AdminDashboard;
 import L03.CNPM.Music.responses.ResponseObject;
 import L03.CNPM.Music.responses.users.LoginResponse;
 import L03.CNPM.Music.responses.users.UserDetailResponse;
 import L03.CNPM.Music.responses.users.UserListResponse;
 import L03.CNPM.Music.responses.users.UserResponse;
+import L03.CNPM.Music.services.album.IAlbumService;
 import L03.CNPM.Music.services.users.IUserService;
+import L03.CNPM.Music.services.song.ISongService;
 import L03.CNPM.Music.utils.MessageKeys;
 import L03.CNPM.Music.utils.ValidationUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +34,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("${api.prefix}/users")
@@ -40,6 +45,48 @@ public class UserController {
         private final IUserService userService;
         private final ValidationUtils validationUtils;
         private final JwtTokenUtils jwtTokenUtils;
+        private final IAlbumService albumService;
+        private final ISongService songService;
+
+        @GetMapping("/admin-dashboard")
+        @PreAuthorize("hasRole('ROLE_ADMIN')")
+        public ResponseEntity<ResponseObject> AdminDashboard() throws Exception {
+                Map<String, Object> albumDashboard = albumService.AdminDashboard();
+
+                Map<String, Object> songDashboard = songService.AdminDashboard();
+
+                Map<String, Object> userDashboard = userService.AdminDashboard();
+
+                int totalUsers = Integer.parseInt(userDashboard.get("total_users").toString());
+                int totalArtists = Integer.parseInt(userDashboard.get("total_artists").toString());
+                int totalActiveUsers = totalUsers - totalArtists;
+
+                int totalAlbums = Integer.parseInt(albumDashboard.get("total_albums").toString());
+                int totalPendingAlbums = Integer.parseInt(albumDashboard.get("total_pending_albums").toString());
+                int totalApprovedAlbums = totalAlbums - totalPendingAlbums;
+
+                int totalApprovedSongs = Integer.parseInt(songDashboard.get("total_approved_songs").toString());
+                int totalPendingSongs = Integer.parseInt(songDashboard.get("total_pending_songs").toString());
+                int totalSongs = totalApprovedSongs + totalPendingSongs;
+
+                AdminDashboard adminDashboardResponse = AdminDashboard.builder()
+                                .totalUsers(totalUsers)
+                                .totalArtists(totalArtists)
+                                .totalActiveUsers(totalActiveUsers)
+                                .totalAlbums(totalAlbums)
+                                .totalSongs(totalSongs)
+                                .totalApprovedSongs(totalApprovedSongs)
+                                .totalPendingSongs(totalPendingSongs)
+                                .totalApprovedAlbums(totalApprovedAlbums)
+                                .totalPendingAlbums(totalPendingAlbums)
+                                .build();
+
+                return ResponseEntity.ok().body(ResponseObject.builder()
+                                .message("Get admin dashboard successfully")
+                                .status(HttpStatus.OK)
+                                .data(adminDashboardResponse)
+                                .build());
+        }
 
         // ENDPOINT: {{API_PREFIX}}/users [GET]
         // GET ALL USERS IN SYSTEM, USE BEFORE LOGIN

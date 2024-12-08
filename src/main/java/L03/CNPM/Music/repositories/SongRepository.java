@@ -30,4 +30,10 @@ public interface SongRepository extends JpaRepository<Song, Long> {
     List<Song> findAllByAlbumId(Long albumId);
 
     boolean existsById(@SuppressWarnings("null") Long albumId);
+
+    @Query("SELECT COUNT(s) FROM Song s WHERE s.status = :status")
+    int countAllByStatus(@Param("status") Song.Status status);
+
+    @Query("SELECT COUNT(s) FROM Song s WHERE s.status = 'PENDING'")
+    int countAllPending();
 }

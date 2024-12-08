@@ -43,6 +43,16 @@ public class SongService implements ISongService {
     private final SongPlaylistRepository songPlaylistRepository;
 
     @Override
+    public Map<String, Object> AdminDashboard() throws Exception {
+        int totalApprovedSongs = songRepository.countAllByStatus(Song.Status.APPROVED);
+        int totalPendingSongs = songRepository.countAllByStatus(Song.Status.PENDING);
+
+        return Map.of(
+                "total_approved_songs", totalApprovedSongs,
+                "total_pending_songs", totalPendingSongs);
+    }
+
+    @Override
     public Page<Song> Get(String keyword, String albumId, Pageable pageable) {
         if (keyword != null) {
             keyword = keyword.trim();

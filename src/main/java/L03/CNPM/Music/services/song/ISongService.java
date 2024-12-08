@@ -11,6 +11,8 @@ import L03.CNPM.Music.DTOS.song.SongMetadataDTO;
 import L03.CNPM.Music.models.Song;
 
 public interface ISongService {
+    Map<String, Object> AdminDashboard() throws Exception;
+
     Page<Song> Get(String keyword, String albumId, Pageable pageable);
 
     Page<Song> GetPending(String keyword, Pageable pageable);
