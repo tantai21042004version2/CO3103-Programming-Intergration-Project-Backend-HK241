@@ -11,6 +11,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Map;
 
 public interface IAlbumService {
+    Map<String, Object> AdminDashboard() throws Exception;
+
     Map<String, Object> UploadCloudinary(MultipartFile file, Long artistId) throws Exception;
 
     Album Create(UploadAlbumDTO uploadAlbumDTO, Long artistId) throws Exception;

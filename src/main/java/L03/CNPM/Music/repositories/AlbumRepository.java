@@ -13,32 +13,38 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface AlbumRepository extends JpaRepository<Album, Long> {
-    @SuppressWarnings("null")
-    @Query("SELECT a FROM Album a WHERE a.deletedAt IS NULL AND a.id = :albumId")
-    Optional<Album> findById(Long albumId);
+        @SuppressWarnings("null")
+        @Query("SELECT a FROM Album a WHERE a.deletedAt IS NULL AND a.id = :albumId")
+        Optional<Album> findById(Long albumId);
 
-    @Query("SELECT a FROM Album a WHERE a.artistId = :artistId " +
-            "AND (:nameKeyword IS NULL OR a.name LIKE %:nameKeyword%) " +
-            "AND (:status IS NULL OR a.status = :status) " +
-            "AND (a.deletedAt IS NULL)")
-    Page<Album> findAllByArtistId(
-            @Param("artistId") Long artistId,
-            @Param("nameKeyword") String nameKeyword,
-            @Param("status") Album.Status status,
-            Pageable pageable);
+        @Query("SELECT a FROM Album a WHERE a.artistId = :artistId " +
+                        "AND (:nameKeyword IS NULL OR a.name LIKE %:nameKeyword%) " +
+                        "AND (:status IS NULL OR a.status = :status) " +
+                        "AND (a.deletedAt IS NULL)")
+        Page<Album> findAllByArtistId(
+                        @Param("artistId") Long artistId,
+                        @Param("nameKeyword") String nameKeyword,
+                        @Param("status") Album.Status status,
+                        Pageable pageable);
 
-    @Query("SELECT a FROM Album a WHERE " +
-            "(:nameKeyword IS NULL OR a.name LIKE %:nameKeyword%) " +
-            "AND (:status IS NULL OR a.status = :status) " +
-            "AND (a.deletedAt IS NULL)")
-    Page<Album> get(
-            @Param("nameKeyword") String nameKeyword,
-            @Param("status") Album.Status status,
-            Pageable pageable);
+        @Query("SELECT a FROM Album a WHERE " +
+                        "(:nameKeyword IS NULL OR a.name LIKE %:nameKeyword%) " +
+                        "AND (:status IS NULL OR a.status = :status) " +
+                        "AND (a.deletedAt IS NULL)")
+        Page<Album> get(
+                        @Param("nameKeyword") String nameKeyword,
+                        @Param("status") Album.Status status,
+                        Pageable pageable);
 
-    @Query("SELECT a FROM Album a WHERE a.deletedAt IS NULL " +
-            "AND (:nameKeyword IS NULL OR a.name LIKE %:nameKeyword%)")
-    Page<Album> findAll(
-            @Param("nameKeyword") String nameKeyword,
-            Pageable pageable);
+        @Query("SELECT a FROM Album a WHERE a.deletedAt IS NULL " +
+                        "AND (:nameKeyword IS NULL OR a.name LIKE %:nameKeyword%)")
+        Page<Album> findAll(
+                        @Param("nameKeyword") String nameKeyword,
+                        Pageable pageable);
+
+        @Query("SELECT COUNT(a) FROM Album a WHERE a.status = :status")
+        int countAllByStatus(@Param("status") Album.Status status);
+
+        @Query("SELECT COUNT(a) FROM Album a WHERE a.status = 'PENDING'")
+        int countAllPending();
 }

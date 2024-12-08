@@ -50,6 +50,16 @@ public class UserService implements IUserService {
     private final ValidationUtils validationUtils;
 
     @Override
+    public Map<String, Object> AdminDashboard() throws Exception {
+        int totalUsers = userRepository.countAllByIsActive(true);
+        int totalArtists = userRepository.countAllByRoleName(Role.ARTIST);
+
+        return Map.of(
+                "total_users", totalUsers,
+                "total_artists", totalArtists);
+    }
+
+    @Override
     public Page<User> findAll(String keyword, Pageable pageable) {
         return userRepository.findAll(keyword, pageable);
     }
