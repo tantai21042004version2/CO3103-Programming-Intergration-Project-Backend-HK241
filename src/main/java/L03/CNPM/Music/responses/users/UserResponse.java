@@ -17,6 +17,9 @@ public class UserResponse {
     @JsonProperty("username")
     private String username;
 
+    @JsonProperty("email")
+    private String email;
+
     @JsonProperty("role")
     private Role role;
 
@@ -27,6 +30,7 @@ public class UserResponse {
         return UserResponse.builder()
                 .id(user.getId())
                 .username(user.getUsername())
+                .email(user.getEmail())
                 .role(user.getRole())
                 .imageUrl(user.getImageUrl())
                 .build();
