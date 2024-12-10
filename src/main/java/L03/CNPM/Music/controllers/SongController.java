@@ -355,10 +355,20 @@ public class SongController {
                 try {
                         Song newSong = songService.Create(metadataSongDTO);
 
-                        User artist = userService.Detail(newSong.getArtistId());
+                        User artist = null;
+                        if (newSong.getArtistId() != null) {
+                                artist = userService.Detail(newSong.getArtistId());
+                        }
 
-                        Album album = albumService.Detail(newSong.getAlbumId());
-                        Genre genre = genreService.Detail(newSong.getGenreId());
+                        Album album = null;
+                        if (newSong.getAlbumId() != null) {
+                                album = albumService.Detail(newSong.getAlbumId());
+                        }
+
+                        Genre genre = null;
+                        if (newSong.getGenreId() != null) {
+                                genre = genreService.Detail(newSong.getGenreId());
+                        }
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Create song successfully")
@@ -407,9 +417,20 @@ public class SongController {
                 try {
                         Song song = songService.Update(Long.parseLong(id), userId);
 
-                        User artist = userService.Detail(song.getArtistId());
-                        Album album = albumService.Detail(song.getAlbumId());
-                        Genre genre = genreService.Detail(song.getGenreId());
+                        User artist = null;
+                        if (song.getArtistId() != null) {
+                                artist = userService.Detail(song.getArtistId());
+                        }
+
+                        Album album = null;
+                        if (song.getAlbumId() != null) {
+                                album = albumService.Detail(song.getAlbumId());
+                        }
+
+                        Genre genre = null;
+                        if (song.getGenreId() != null) {
+                                genre = genreService.Detail(song.getGenreId());
+                        }
 
                         return ResponseEntity.status(HttpStatus.OK).body(ResponseObject.builder()
                                         .message("Update song successfully")
@@ -458,14 +479,17 @@ public class SongController {
                 try {
                         Song song = songService.ApproveSong(id);
 
-                        User artist = userService.Detail(song.getArtistId());
+                        User artist = null;
+                        if (song.getArtistId() != null) {
+                                artist = userService.Detail(song.getArtistId());
+                        }
 
                         Album album = null;
-                        Genre genre = null;
                         if (song.getAlbumId() != null) {
                                 album = albumService.Detail(song.getAlbumId());
                         }
 
+                        Genre genre = null;
                         if (song.getGenreId() != null) {
                                 genre = genreService.Detail(song.getGenreId());
                         }
@@ -517,14 +541,17 @@ public class SongController {
                 try {
                         Song song = songService.RejectSong(id);
 
-                        User artist = userService.Detail(song.getArtistId());
+                        User artist = null;
+                        if (song.getArtistId() != null) {
+                                artist = userService.Detail(song.getArtistId());
+                        }
 
                         Album album = null;
-                        Genre genre = null;
                         if (song.getAlbumId() != null) {
                                 album = albumService.Detail(song.getAlbumId());
                         }
 
+                        Genre genre = null;
                         if (song.getGenreId() != null) {
                                 genre = genreService.Detail(song.getGenreId());
                         }
