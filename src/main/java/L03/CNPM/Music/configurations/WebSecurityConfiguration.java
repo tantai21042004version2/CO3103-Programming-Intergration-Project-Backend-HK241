@@ -60,7 +60,8 @@ public class WebSecurityConfiguration {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
                 "http://localhost:4200",
-                "https://co3103-programming-integration-project-55ev.onrender.com"));
+                "https://co3103-programming-integration-project-55ev.onrender.com",
+                "https://co-3103-programming-intergration-project-frontend-hk-241-oy53.vercel.app"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

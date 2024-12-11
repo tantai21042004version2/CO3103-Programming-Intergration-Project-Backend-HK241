@@ -14,13 +14,13 @@ import java.util.Optional;
 
 @Repository
 public interface SongRepository extends JpaRepository<Song, Long> {
-    @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%) AND (:albumId IS NULL OR s.albumId = :albumId) AND s.status = 'APPROVED'")
+    @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%) AND (:albumId IS NULL OR s.albumId = :albumId) AND s.status = 'APPROVED' ORDER BY s.id DESC")
     Page<Song> findAll(@Param("keyword") String keyword, @Param("albumId") Long albumId, Pageable pageable);
 
     @Query("SELECT s FROM Song s WHERE s.artistId = :artistId")
     Page<Song> findAllByArtistId(@Param("artistId") Long artistId, Pageable pageable);
 
-    @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%) AND s.status = 'PENDING'")
+    @Query("SELECT s FROM Song s WHERE (:keyword IS NULL OR s.name LIKE %:keyword%) AND s.status = 'PENDING' ORDER BY s.id DESC")
     Page<Song> findAllPending(@Param("keyword") String keyword, Pageable pageable);
 
     @SuppressWarnings("null")

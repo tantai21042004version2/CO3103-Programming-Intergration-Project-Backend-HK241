@@ -80,7 +80,7 @@ public class SongController {
 
                 PageRequest pageRequest = PageRequest.of(
                                 page - 1, limit,
-                                Sort.by("id").ascending());
+                                Sort.by("id").descending());
 
                 Page<SongResponse> songPage = songService.Get(keyword, albumId, pageRequest)
                                 .map(SongResponse::fromSong);
